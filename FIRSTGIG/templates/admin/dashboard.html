@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Admin · FirstGig{% endblock %}
+{% block content %}
+<h1 class="page-title h3 mb-3">Admin dashboard</h1>
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.users') }}">Users</a>
+  <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.gigs_list') }}">Gigs</a>
+  <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.projects_list') }}">Projects</a>
+  <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.disputes_list') }}">Disputes</a>
+  <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.reviews_list') }}">Reviews</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Students</div><div class="v">{{ student_count }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Clients</div><div class="v">{{ client_count }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Verified students</div><div class="v">{{ verified }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Gigs</div><div class="v">{{ gigs }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Active projects</div><div class="v">{{ active }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Completed</div><div class="v">{{ completed }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Overdue</div><div class="v">{{ overdue }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Disputed</div><div class="v">{{ disputed }}</div></div></div>
+  <div class="col-6 col-md-4"><div class="stat-card"><div class="k">Escrow held (mock)</div><div class="v">₹{{ "{:,}".format(held) }}</div></div></div>
+  <div class="col-6 col-md-4"><div class="stat-card"><div class="k">Released</div><div class="v">₹{{ "{:,}".format(released) }}</div></div></div>
+  <div class="col-6 col-md-4"><div class="stat-card"><div class="k">Refunded</div><div class="v">₹{{ "{:,}".format(refunded) }}</div></div></div>
+</div>
+<div class="row g-4">
+  <div class="col-lg-6"><div class="card-fg p-3"><canvas id="statusChart" height="180"></canvas></div></div>
+  <div class="col-lg-6">
+    <div class="card-fg p-3">
+      <h2 class="h6">Recent projects</h2>
+      {% for p in recent_projects %}
+        <div class="small py-1"><a href="{{ url_for('projects.detail', project_id=p.id) }}">{{ p.gig.title }}</a> · {{ p.status }}</div>
+      {% endfor %}
+      <p class="small text-muted mt-2 mb-0">Open disputes: {{ open_disputes }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const labels = {{ by_status.keys()|list|tojson }};
+const data = {{ by_status.values()|list|tojson }};
+new Chart(document.getElementById('statusChart'), {
+  type: 'doughnut',
+  data: { labels, datasets: [{ data, backgroundColor: ['#0f766e','#c4a35a','#14213d','#c45c26','#94a3b8','#7c3aed'] }] },
+  options: { plugins: { title: { display: true, text: 'Projects by status' } } }
+});
+</script>
+{% endblock %}

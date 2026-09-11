@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Verify college email · FirstGig{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card-fg p-4">
+      <h1 class="h4 page-title">College email verification</h1>
+      <p class="text-muted">This is a mock flow — no real college API. Enter the 6-digit demo code.</p>
+      <p class="small">College email: <strong>{{ profile.college_email }}</strong></p>
+      <form method="post" class="mb-3">
+        <input class="form-control mb-3" name="code" placeholder="123456" required>
+        <button class="btn btn-teal" type="submit">Verify</button>
+      </form>
+      <form method="post" action="{{ url_for('auth.resend_code') }}">
+        <button class="btn btn-outline-secondary btn-sm" type="submit">Resend demo code</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

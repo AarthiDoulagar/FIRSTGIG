@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Projects · FirstGig{% endblock %}
+{% block content %}
+<h1 class="page-title h3 mb-3">Projects</h1>
+{% if not projects %}<div class="empty card-fg">No projects yet.</div>{% endif %}
+<div class="table-responsive card-fg">
+<table class="table table-fg mb-0">
+  <thead><tr><th>Gig</th><th>Student</th><th>Client</th><th>Status</th><th>Deadline</th><th>Escrow</th></tr></thead>
+  <tbody>
+  {% for p in projects %}
+    <tr>
+      <td><a href="{{ url_for('projects.detail', project_id=p.id) }}">{{ p.gig.title }}</a></td>
+      <td>{{ p.student.name }}</td>
+      <td>{{ p.client.name }}</td>
+      <td>{{ p.status }}</td>
+      <td class="tone-{{ p.deadline_tone() }}">{{ p.deadline }}</td>
+      <td>{% if p.payment %}{{ p.payment.status }}{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

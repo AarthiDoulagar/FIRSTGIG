@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Client dashboard · FirstGig{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between mb-4">
+  <div>
+    <h1 class="page-title h3 mb-1">{{ current_user.client_profile.company_name }}</h1>
+    <p class="text-muted mb-0">{{ current_user.name }}</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-teal btn-sm" href="{{ url_for('gigs.post_gig') }}">Post a Gig</a>
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('gigs.manage') }}">Manage Gigs</a>
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('projects.list_projects') }}">View Projects</a>
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('client.profile') }}">View Profile</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md"><div class="stat-card"><div class="k">Posted gigs</div><div class="v">{{ gigs|length }}</div></div></div>
+  <div class="col-6 col-md"><div class="stat-card"><div class="k">Applications</div><div class="v">{{ applications|length }}</div></div></div>
+  <div class="col-6 col-md"><div class="stat-card"><div class="k">Active projects</div><div class="v">{{ active|length }}</div></div></div>
+  <div class="col-6 col-md"><div class="stat-card"><div class="k">Completed</div><div class="v">{{ completed|length }}</div></div></div>
+  <div class="col-6 col-md"><div class="stat-card"><div class="k">Pending reviews</div><div class="v">{{ pending_reviews|length }}</div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-fg p-3 mb-3">
+      <h2 class="h6">Active projects</h2>
+      {% if not active %}<p class="empty mb-0">None.</p>{% endif %}
+      {% for p in active %}
+        <div class="d-flex justify-content-between border-bottom py-2">
+          <a href="{{ url_for('projects.detail', project_id=p.id) }}">{{ p.gig.title }}</a>
+          <span class="badge text-bg-light">{{ p.status }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="card-fg p-3">
+      <h2 class="h6">Applications received</h2>
+      {% if not applications %}<p class="empty mb-0">No applications yet.</p>{% endif %}
+      {% for a in applications[:8] %}
+        <div class="d-flex justify-content-between small py-1">
+          <span>{{ a.student.name }} → {{ a.gig.title }} ({{ a.status }})</span>
+          <a href="{{ url_for('gigs.applicants', gig_id=a.gig_id) }}">View</a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-fg p-3 mb-3">
+      <h2 class="h6">Mock escrow</h2>
+      <p class="escrow-banner">Simulated only — not real money.</p>
+      {% for pay in payments %}
+        <div class="small d-flex justify-content-between py-1"><span>₹{{ "{:,}".format(pay.amount) }}</span><span>{{ pay.status }}</span></div>
+      {% endfor %}
+      {% if not payments %}<p class="small text-muted mb-0">No payments yet.</p>{% endif %}
+    </div>
+    <div class="card-fg p-3 mb-3">
+      <h2 class="h6">Pending reviews</h2>
+      {% for p in pending_reviews %}
+        <div><a href="{{ url_for('reviews.create_review', project_id=p.id) }}">Review {{ p.student.name }}</a></div>
+      {% endfor %}
+      {% if not pending_reviews %}<p class="small text-muted mb-0">None.</p>{% endif %}
+    </div>
+    <div class="card-fg p-3">
+      <h2 class="h6">Disputes</h2>
+      {% for d in disputes %}
+        <div class="small"><a href="{{ url_for('disputes.detail', dispute_id=d.id) }}">#{{ d.id }} {{ d.reason }} · {{ d.status }}</a></div>
+      {% endfor %}
+      {% if not disputes %}<p class="small text-muted mb-0">None.</p>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

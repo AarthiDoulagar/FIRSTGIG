@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Student dashboard · FirstGig{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title h3 mb-1">Hello, {{ current_user.name.split()[0] }}</h1>
+    <span class="badge-level">{{ level.icon }} {{ level.name }}</span>
+    {% if profile.verified %}<span class="badge-level badge-verified ms-1">🎓 Verified Student</span>{% else %}
+      <a class="btn btn-sm btn-outline-warning ms-1" href="{{ url_for('auth.verify_college') }}">Verify college email</a>
+    {% endif %}
+    <p class="text-muted small mt-2 mb-0">
+      {% if level.next_name %}{{ level.icon }} {{ level.name }} · {{ level.completed }} / {{ level.toward }} gigs toward {{ level.next_name }}{% else %}Max level reached.{% endif %}
+    </p>
+    <div class="progress-slim mt-2" style="max-width:320px"><div class="bar" style="width: {{ level.progress_pct }}%"></div></div>
+  </div>
+  <a class="btn btn-teal" href="{{ url_for('gigs.marketplace') }}">Find gigs</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Completed</div><div class="v">{{ profile.completed_gigs }}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Rating</div><div class="v">{% if profile.rating %}{{ '%.1f'|format(profile.rating) }}{% else %}—{% endif %}</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">Reliability</div><div class="v">{{ '%.0f'|format(profile.reliability_score) }}%</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="k">On-time</div><div class="v">{{ '%.0f'|format(profile.on_time_percentage) }}%</div></div></div>
+</div>
+
+<h2 class="h5">🎯 Recommended For You</h2>
+<div class="row g-3 mb-4">
+  {% if not recs %}<div class="col-12"><div class="empty card-fg">No open matches yet. Browse the marketplace.</div></div>{% endif %}
+  {% for score, gig, expl in recs %}
+  <div class="col-md-6 col-lg-3">
+    <div class="card-fg p-3 h-100">
+      <div class="d-flex justify-content-between"><span class="match-pill">{{ score }}% Match</span><span class="small">₹{{ "{:,}".format(gig.budget) }}</span></div>
+      <h3 class="h6 mt-2"><a href="{{ url_for('gigs.detail', gig_id=gig.id) }}">{{ gig.title }}</a></h3>
+      <p class="small text-muted mb-2">{{ expl }}</p>
+      <a class="btn btn-sm btn-teal" href="{{ url_for('gigs.detail', gig_id=gig.id) }}">View & apply</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-fg p-3">
+      <h2 class="h6">Active projects</h2>
+      {% if not projects %}<p class="empty mb-0">No active projects.</p>{% else %}
+      <div class="table-responsive"><table class="table table-fg mb-0">
+        <thead><tr><th>Gig</th><th>Status</th><th>Deadline</th></tr></thead>
+        <tbody>
+        {% for p in projects %}
+          <tr>
+            <td><a href="{{ url_for('projects.detail', project_id=p.id) }}">{{ p.gig.title }}</a></td>
+            <td><span class="badge text-bg-light">{{ p.status }}</span></td>
+            <td class="tone-{{ p.deadline_tone() }}">{{ p.deadline }} ({{ p.days_remaining() }}d)</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-fg p-3 mb-3">
+      <h2 class="h6">Progression</h2>
+      <ol class="small mb-0">
+        {% for lv in levels %}
+          <li class="{% if lv.key == level.key %}fw-bold{% endif %}">{{ lv.icon }} {{ lv.name }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+    <div class="card-fg p-3">
+      <h2 class="h6">Applications</h2>
+      {% if not applications %}<p class="small text-muted mb-0">None yet.</p>{% endif %}
+      {% for a in applications %}
+        <div class="small mb-2">{{ a.gig.title }} · {{ a.status }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

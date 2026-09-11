@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Client profile · FirstGig{% endblock %}
+{% block content %}
+<div class="card-fg p-4">
+  <h1 class="h3 page-title">{{ current_user.client_profile.company_name }}</h1>
+  <p>{{ current_user.name }} · {{ current_user.email }}</p>
+  <p class="text-muted">{{ current_user.client_profile.description }}</p>
+  <p>{% if current_user.client_profile.rating %}⭐ {{ '%.1f'|format(current_user.client_profile.rating) }}/5 from students{% else %}No student reviews yet.{% endif %}</p>
+  <a class="btn btn-teal" href="{{ url_for('gigs.post_gig') }}">Post a Gig</a>
+</div>
+{% endblock %}

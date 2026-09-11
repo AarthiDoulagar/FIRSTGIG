@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Users · Admin{% endblock %}
+{% block content %}
+<h1 class="page-title h4">Users</h1>
+<p>
+  <a href="{{ url_for('admin.users') }}">All</a> ·
+  <a href="{{ url_for('admin.users', role='student') }}">Students</a> ·
+  <a href="{{ url_for('admin.users', role='client') }}">Clients</a>
+</p>
+<div class="table-responsive card-fg">
+<table class="table table-fg mb-0">
+  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr>
+      <td>{{ u.name }}{% if u.student_profile and u.student_profile.verified %} 🎓{% endif %}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.role }}</td>
+      <td>{% if u.is_active_account %}Active{% else %}Suspended{% endif %}</td>
+      <td>
+        {% if u.is_student() and u.student_profile and not u.student_profile.verified %}
+        <form class="d-inline" method="post" action="{{ url_for('admin.verify_student', user_id=u.id) }}"><button class="btn btn-sm btn-teal">Verify</button></form>
+        {% endif %}
+        {% if u.role != 'admin' %}
+        <form class="d-inline" method="post" action="{{ url_for('admin.suspend', user_id=u.id) }}"><button class="btn btn-sm btn-outline-danger">{{ 'Reactivate' if not u.is_active_account else 'Suspend' }}</button></form>
+        {% endif %}
+        {% if u.is_student() %}<a class="btn btn-sm btn-outline-dark" href="{{ url_for('student.public_profile', user_id=u.id) }}">Profile</a>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Review · FirstGig{% endblock %}
+{% block content %}
+<div class="card-fg p-4 col-lg-7">
+  <h1 class="h4 page-title">Verified review</h1>
+  <p class="text-muted">Only available because this project is COMPLETED and you were a participant.</p>
+  <form method="post">
+    <label class="form-label">Rating</label>
+    <select class="form-select mb-3" name="rating" required>
+      {% for i in range(5,0,-1) %}<option value="{{ i }}">{{ i }} star{{ 's' if i != 1 else '' }}</option>{% endfor %}
+    </select>
+    <label class="form-label">Comment</label>
+    <textarea class="form-control mb-3" name="comment" rows="4" required minlength="8"></textarea>
+    <button class="btn btn-teal" type="submit">Submit review</button>
+  </form>
+</div>
+{% endblock %}

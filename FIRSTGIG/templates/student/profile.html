@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% set u = viewed_user if viewed_user is defined and viewed_user else current_user %}
+{% block title %}{{ u.name }} · FirstGig{% endblock %}
+{% block content %}
+<div class="card-fg p-4 mb-4">
+  <div class="d-flex flex-wrap gap-4">
+    <div class="avatar-circle">{{ u.name[0] }}</div>
+    <div class="flex-grow-1">
+      <h1 class="h3 page-title mb-1">{{ u.name }}</h1>
+      <p class="mb-1">{{ profile.branch }} · {{ profile.college }} · {{ profile.academic_year }}</p>
+      <div class="mb-2">
+        <span class="badge-level">{{ level.icon }} {{ level.name }}</span>
+        {% if profile.verified %}<span class="badge-level badge-verified ms-1">🎓 Verified Student</span>{% endif %}
+      </div>
+      <p class="text-muted mb-2">{{ profile.bio }}</p>
+      <p class="small mb-1">
+        {% if level.next_name %}{{ level.completed }} / {{ level.toward }} gigs toward {{ level.next_name }}{% else %}{{ level.completed }} completed gigs{% endif %}
+      </p>
+      <div class="progress-slim" style="max-width:280px"><div class="bar" style="width:{{ level.progress_pct }}%"></div></div>
+    </div>
+  </div>
+  <div class="row g-3 mt-3">
+    <div class="col-6 col-md"><div class="stat-card"><div class="k">Completed gigs</div><div class="v">{{ profile.completed_gigs }}</div></div></div>
+    <div class="col-6 col-md"><div class="stat-card"><div class="k">Rating</div><div class="v">{% if profile.rating %}⭐ {{ '%.1f'|format(profile.rating) }}/5{% else %}—{% endif %}</div></div></div>
+    <div class="col-6 col-md"><div class="stat-card"><div class="k">Reliability</div><div class="v">🛡️ {{ '%.0f'|format(profile.reliability_score) }}%</div></div></div>
+    <div class="col-6 col-md"><div class="stat-card"><div class="k">On-time</div><div class="v">⏱️ {{ '%.0f'|format(profile.on_time_percentage) }}%</div></div></div>
+    <div class="col-6 col-md"><div class="stat-card"><div class="k">Disputes</div><div class="v">⚠️ {{ profile.dispute_count }}</div></div></div>
+  </div>
+  <div class="mt-3">
+    <div class="small text-muted">Skills</div>
+    {% for s in profile.skill_list() %}<span class="chip">{{ s }}</span>{% endfor %}
+    <div class="small text-muted mt-2">Areas of interest</div>
+    {% for s in profile.interest_list() %}<span class="chip">{{ s }}</span>{% endfor %}
+  </div>
+</div>
+
+{% if editable %}
+<div class="card-fg p-4 mb-4">
+  <h2 class="h6">Edit profile</h2>
+  <p class="small text-muted">Freelancer level is calculated from completed gigs and cannot be changed here.</p>
+  <form method="post" class="row g-3">
+    <div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" value="{{ current_user.name }}"></div>
+    <div class="col-md-6"><label class="form-label">College</label><input class="form-control" name="college" value="{{ profile.college }}"></div>
+    <div class="col-md-6"><label class="form-label">Branch</label><input class="form-control" name="branch" value="{{ profile.branch }}"></div>
+    <div class="col-md-6"><label class="form-label">Year</label><input class="form-control" name="academic_year" value="{{ profile.academic_year }}"></div>
+    <div class="col-12"><label class="form-label">Bio</label><textarea class="form-control" name="bio" rows="2">{{ profile.bio }}</textarea></div>
+    <div class="col-md-6"><label class="form-label">Skills</label><input class="form-control" name="skills" value="{{ profile.skills }}"></div>
+    <div class="col-md-6"><label class="form-label">Interests</label><input class="form-control" name="interests" value="{{ profile.interests }}"></div>
+    <div class="col-12"><button class="btn btn-teal btn-sm" type="submit">Save</button></div>
+  </form>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card-fg p-3 h-100">
+      <h2 class="h6">Client reviews</h2>
+      {% if not reviews %}<p class="empty mb-0">No verified reviews yet.</p>{% endif %}
+      {% for r in reviews %}
+        <div class="border-bottom py-2">
+          <strong>{{ '⭐' * r.rating }}</strong> · {{ r.reviewer.name }}
+          <div class="small">{{ r.comment }}</div>
+          <div class="small text-muted">{{ r.created_at.strftime('%d %b %Y') }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card-fg p-3 h-100">
+      <h2 class="h6">Portfolio</h2>
+      {% if not portfolio %}<p class="empty mb-0">No portfolio items.</p>{% endif %}
+      {% for item in portfolio %}
+        <div class="mb-3">
+          <strong>{{ item.title }}</strong>
+          {% if not item.is_public %}<span class="badge text-bg-secondary">Private</span>{% endif %}
+          <div class="small text-muted">{{ item.skills }} · {{ item.completion_date }}</div>
+          <p class="small mb-1">{{ item.description[:180] }}</p>
+          {% if item.client_review %}<p class="small fst-italic mb-0">“{{ item.client_review }}”</p>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card-fg p-3 mt-4">
+  <h2 class="h6">Completed projects</h2>
+  {% if not completed %}<p class="empty mb-0">None yet — completed gigs will appear here.</p>{% endif %}
+  <ul class="mb-0">
+    {% for p in completed %}
+      <li>
+        {% if current_user.is_authenticated and (current_user.is_admin() or p.is_participant(current_user.id)) %}
+          <a href="{{ url_for('projects.detail', project_id=p.id) }}">{{ p.gig.title }}</a>
+        {% else %}
+          {{ p.gig.title }}
+        {% endif %}
+        · ₹{{ "{:,}".format(p.budget) }}
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

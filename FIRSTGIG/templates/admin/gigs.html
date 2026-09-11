@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Gigs · Admin{% endblock %}
+{% block content %}
+<h1 class="page-title h4">Gigs</h1>
+<div class="table-responsive card-fg">
+<table class="table table-fg mb-0">
+  <thead><tr><th>Title</th><th>Client</th><th>Budget</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for g in gigs %}
+    <tr>
+      <td>{{ g.title }}</td>
+      <td>{{ g.client.name }}</td>
+      <td>₹{{ "{:,}".format(g.budget) }}</td>
+      <td>{{ g.status }}</td>
+      <td>
+        <a href="{{ url_for('gigs.detail', gig_id=g.id) }}">View</a>
+        {% if g.status != 'REMOVED' %}
+        <form class="d-inline" method="post" action="{{ url_for('admin.remove_gig', gig_id=g.id) }}"><button class="btn btn-sm btn-outline-danger" data-confirm="Remove this gig?">Remove</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

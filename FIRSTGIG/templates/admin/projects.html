@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Projects · Admin{% endblock %}
+{% block content %}
+<h1 class="page-title h4">Projects</h1>
+<div class="table-responsive card-fg">
+<table class="table table-fg mb-0">
+  <thead><tr><th>ID</th><th>Gig</th><th>Student</th><th>Status</th><th>Escrow</th></tr></thead>
+  <tbody>
+  {% for p in projects %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td><a href="{{ url_for('projects.detail', project_id=p.id) }}">{{ p.gig.title }}</a></td>
+      <td>{{ p.student.name }}</td>
+      <td>{{ p.status }}</td>
+      <td>{% if p.payment %}{{ p.payment.status }}{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
