@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Applicants · {{ gig.title }}{% endblock %}
+{% block content %}
+<h1 class="page-title h4">Applicants — {{ gig.title }}</h1>
+<p class="text-muted">Compare verified reputation before you hire. Accepting a student creates a project and holds mock escrow.</p>
+{% if not cards %}<div class="empty card-fg">No applications yet.</div>{% endif %}
+<div class="row g-3">
+  {% for c in cards %}
+  <div class="col-lg-6">
+    <div class="card-fg p-3 h-100">
+      <div class="d-flex justify-content-between">
+        <h2 class="h5 mb-0">{{ c.app.student.name }}</h2>
+        <span class="badge-level">{{ c.level.icon }} {{ c.level.name }}</span>
+      </div>
+      {% if c.profile %}
+        <p class="small mb-1">⭐ {% if c.profile.rating %}{{ '%.1f'|format(c.profile.rating) }}/5{% else %}No rating{% endif %}
+          · 🛡️ {{ '%.0f'|format(c.profile.reliability_score) }}% · {{ c.profile.completed_gigs }} gigs
+          {% if c.profile.verified %}· 🎓 Verified{% endif %}</p>
+        <div class="mb-2">{% for s in c.profile.skill_list() %}<span class="chip">{{ s }}</span>{% endfor %}</div>
+      {% endif %}
+      <p class="small">{{ c.app.proposal }}</p>
+      <p class="small text-muted">ETA: {{ c.app.expected_completion }} · {{ c.app.status }} · {{ c.app.created_at.strftime('%d %b') }}</p>
+      <a class="btn btn-sm btn-outline-dark" href="{{ url_for('student.public_profile', user_id=c.app.student_id) }}">View Profile</a>
+      {% if c.app.status == 'Pending' and gig.status != 'ASSIGNED' %}
+      <form class="d-inline" method="post" action="{{ url_for('gigs.accept', gig_id=gig.id, app_id=c.app.id) }}">
+        <button class="btn btn-sm btn-teal" data-confirm="Hire this student? Mock escrow will hold ₹{{ '{:,}'.format(gig.budget) }}.">Accept</button>
+      </form>
+      <form class="d-inline" method="post" action="{{ url_for('gigs.reject', gig_id=gig.id, app_id=c.app.id) }}">
+        <button class="btn btn-sm btn-outline-danger">Reject</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

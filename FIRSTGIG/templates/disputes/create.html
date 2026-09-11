@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Open dispute · FirstGig{% endblock %}
+{% block content %}
+<div class="card-fg p-4 col-lg-7">
+  <h1 class="h4 page-title">Raise a dispute</h1>
+  <p class="text-muted">{{ project.gig.title }}</p>
+  <form method="post">
+    <label class="form-label">Reason</label>
+    <select class="form-select mb-3" name="reason">
+      {% for r in reasons %}<option>{{ r }}</option>{% endfor %}
+    </select>
+    <label class="form-label">Description</label>
+    <textarea class="form-control mb-3" name="description" rows="4" required></textarea>
+    <label class="form-label">Evidence / message</label>
+    <textarea class="form-control mb-3" name="evidence" rows="2"></textarea>
+    <button class="btn btn-outline-danger" type="submit">Open dispute</button>
+  </form>
+</div>
+{% endblock %}

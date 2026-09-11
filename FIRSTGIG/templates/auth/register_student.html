@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Student register · FirstGig{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card-fg p-4">
+      <h1 class="h4 page-title">Create a student account</h1>
+      <form method="post" class="row g-3">
+        <div class="col-md-6"><label class="form-label">Full name</label><input class="form-control" name="name" required></div>
+        <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" type="email" name="email" required></div>
+        <div class="col-md-6"><label class="form-label">Password</label><input class="form-control" type="password" name="password" minlength="6" required></div>
+        <div class="col-md-6"><label class="form-label">College email (for mock verify)</label><input class="form-control" type="email" name="college_email"></div>
+        <div class="col-md-6"><label class="form-label">College name</label><input class="form-control" name="college" required></div>
+        <div class="col-md-6"><label class="form-label">Branch</label><input class="form-control" name="branch" required placeholder="B.Tech — Computer Science"></div>
+        <div class="col-md-6"><label class="form-label">Academic year</label><input class="form-control" name="academic_year" required placeholder="2nd Year"></div>
+        <div class="col-12"><label class="form-label">Short bio</label><textarea class="form-control" name="bio" rows="2"></textarea></div>
+        <div class="col-md-6"><label class="form-label">Skills (comma-separated)</label><input class="form-control" name="skills" placeholder="Python, Flask, HTML"></div>
+        <div class="col-md-6"><label class="form-label">Areas of interest</label><input class="form-control" name="interests" placeholder="Web Development, AI"></div>
+        <div class="col-12"><button class="btn btn-teal" type="submit">Create student account</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

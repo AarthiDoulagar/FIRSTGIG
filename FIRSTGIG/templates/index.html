@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}FirstGig — Your first verified freelance career{% endblock %}
+{% block content %}
+<section class="hero mb-5">
+  <p class="mb-2 opacity-75">Verified micro-freelance for students</p>
+  <h1 class="mb-3">Your First Gig. Your First Reputation.<br>Your Freelance Career.</h1>
+  <p class="lead mb-4">Start with small projects, build verified experience, and unlock better freelance opportunities.</p>
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <a class="btn btn-gold px-4 py-2" href="{{ url_for('gigs.marketplace') }}">Find Your First Gig</a>
+    <a class="btn btn-ghost px-4 py-2" href="{{ url_for('gigs.post_gig') if current_user.is_authenticated and current_user.is_client() else url_for('auth.register_client') }}">Post a Gig</a>
+  </div>
+  <div class="ladder">
+    {% for lv in levels %}
+      <span class="step {% if lv.key == 'verified' %}on{% endif %}">{{ lv.icon }} {{ lv.name.replace('FirstGig ', '').replace(' Freelancer','').replace(' Student','') }}</span>
+      {% if not loop.last %}<span class="opacity-50">→</span>{% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<div class="row g-4 mb-5">
+  <div class="col-lg-7">
+    <h2 class="page-title h3 mb-3">Why FirstGig?</h2>
+    <div class="row g-3">
+      {% set why = [
+        ('bi-mortarboard', 'Verified Students', 'Mock college-email verification so clients hire real students.'),
+        ('bi-shield-check', 'Protected Mock Escrow', 'Budgets are held in a simulated escrow — never real money.'),
+        ('bi-star', 'Genuine Reviews', 'Reviews unlock only after a completed project with both parties.'),
+        ('bi-graph-up-arrow', 'Career Progression', 'Levels are earned from completed gigs. Nobody can self-promote.'),
+        ('bi-folder2-open', 'Automatic Portfolio', 'Finished work can be published as public proof.'),
+        ('bi-rocket-takeoff', 'Better Opportunities', 'Higher levels get higher-value gigs recommended first.')
+      ] %}
+      {% for icon, title, text in why %}
+      <div class="col-md-6">
+        <div class="card-fg p-3 h-100">
+          <i class="bi {{ icon }} fs-4 text-success"></i>
+          <h3 class="h6 mt-2 mb-1">{{ title }}</h3>
+          <p class="mb-0 text-muted small">{{ text }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-fg p-4 h-100">
+      <h2 class="h5">The idea</h2>
+      <p class="text-muted">Students cannot get a first freelance job because they have no reviews. Clients hesitate because there is no track record.</p>
+      <p class="mb-1"><strong>Start small → complete real projects → build verified reputation → unlock better projects.</strong></p>
+      <p class="small text-muted mb-0">Your first gig isn’t just your first job. It’s the first step toward a verified freelance career.</p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card-fg p-4 h-100">
+      <h2 class="h5">For Students</h2>
+      <ol class="mb-0">
+        <li>Create your profile</li>
+        <li>Verify your college email</li>
+        <li>Find your first gig</li>
+        <li>Complete the project</li>
+        <li>Get a verified review</li>
+        <li>Build your reputation</li>
+        <li>Unlock better projects</li>
+      </ol>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card-fg p-4 h-100">
+      <h2 class="h5">For Clients</h2>
+      <ol class="mb-0">
+        <li>Post a gig</li>
+        <li>Review student profiles</li>
+        <li>Select a student</li>
+        <li>Use mock escrow</li>
+        <li>Track the project</li>
+        <li>Approve the work</li>
+        <li>Review the student</li>
+      </ol>
+    </div>
+  </div>
+</div>
+{% endblock %}

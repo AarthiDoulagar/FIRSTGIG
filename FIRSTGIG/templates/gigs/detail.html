@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ gig.title }} · FirstGig{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card-fg p-4">
+      <div class="d-flex justify-content-between"><span class="badge text-bg-light">{{ gig.status }}</span><span>{{ gig.difficulty }}</span></div>
+      <h1 class="h3 page-title mt-2">{{ gig.title }}</h1>
+      <p class="text-muted">{{ gig.client.name }}{% if gig.client.client_profile %} · {{ gig.client.client_profile.company_name }}{% endif %} · {{ gig.category }}</p>
+      <p>{{ gig.description }}</p>
+      {% if gig.requirements %}<h2 class="h6">Requirements</h2><p>{{ gig.requirements }}</p>{% endif %}
+      <div>{% for s in gig.skill_list() %}<span class="chip">{{ s }}</span>{% endfor %}</div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card-fg p-4 mb-3">
+      <div class="stat-card mb-2"><div class="k">Budget</div><div class="v">₹{{ "{:,}".format(gig.budget) }}</div></div>
+      <p class="mb-1">Deadline: {{ gig.deadline }}</p>
+      <p class="small text-muted">Posted {{ gig.created_at.strftime('%d %b %Y') }}</p>
+      {% if current_user.is_authenticated and current_user.is_client() and current_user.id == gig.client_id %}
+        <a class="btn btn-teal w-100" href="{{ url_for('gigs.applicants', gig_id=gig.id) }}">View applications</a>
+      {% endif %}
+    </div>
+    {% if current_user.is_authenticated and current_user.is_student() and gig.status in ['OPEN','APPLIED'] %}
+      {% if already %}
+        <div class="alert alert-info">You already applied ({{ already.status }}).</div>
+      {% else %}
+      <div class="card-fg p-4">
+        <h2 class="h6">Apply</h2>
+        <form method="post" action="{{ url_for('gigs.apply', gig_id=gig.id) }}">
+          <textarea class="form-control mb-2" name="proposal" rows="4" required minlength="20" placeholder="Proposal / message"></textarea>
+          <input class="form-control mb-2" name="expected_completion" placeholder="Expected completion (e.g. 5 days)" required>
+          <button class="btn btn-teal w-100" type="submit">Submit application</button>
+        </form>
+      </div>
+      {% endif %}
+    {% elif not current_user.is_authenticated %}
+      <a class="btn btn-outline-dark w-100" href="{{ url_for('auth.login') }}">Login as a student to apply</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

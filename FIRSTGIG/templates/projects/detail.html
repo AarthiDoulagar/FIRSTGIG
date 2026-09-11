@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Project #{{ project.id }} · FirstGig{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between mb-3">
+  <div>
+    <h1 class="page-title h3">{{ project.gig.title }}</h1>
+    <p class="text-muted mb-0">{{ project.student.name }} · {{ student_level.icon }} {{ student_level.name }} · Client {{ project.client.name }}</p>
+  </div>
+  <span class="badge-level">{{ project.status }}</span>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3"><div class="stat-card"><div class="k">Budget</div><div class="v">₹{{ "{:,}".format(project.budget) }}</div></div></div>
+  <div class="col-md-3"><div class="stat-card"><div class="k">Deadline</div><div class="v" style="font-size:1.1rem">{{ project.deadline }}</div></div></div>
+  <div class="col-md-3"><div class="stat-card"><div class="k">Days remaining</div><div class="v tone-{{ project.deadline_tone() }}">{{ project.days_remaining() }}
+    {% if project.deadline_tone()=='ok' %}🟢{% elif project.deadline_tone()=='soon' %}🟡{% elif project.deadline_tone()=='overdue' %}🔴{% endif %}
+  </div></div></div>
+  <div class="col-md-3"><div class="stat-card"><div class="k">Mock escrow</div><div class="v" style="font-size:1.1rem">{% if project.payment %}{{ project.payment.status }}{% else %}—{% endif %}</div></div></div>
+</div>
+<p class="escrow-banner">Payment: ₹{{ "{:,}".format(project.budget) }} · Status: {% if project.payment %}{{ project.payment.status }}{% endif %} · Simulated mock escrow — not real money.</p>
+
+<div class="card-fg p-3 mb-3">
+  <h2 class="h6">Milestones</h2>
+  {% for m in project.milestones %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom py-2">
+      <div><strong>{{ m.title }}</strong> · ₹{{ "{:,}".format(m.amount) }} · {{ m.status }}</div>
+      {% if current_user.is_student() and current_user.id == project.student_id %}
+      <form method="post" action="{{ url_for('projects.milestone_status', project_id=project.id, mid=m.id) }}" class="d-flex gap-1">
+        <select class="form-select form-select-sm" name="status"><option>In Progress</option><option>Submitted</option></select>
+        <button class="btn btn-sm btn-outline-dark">Update</button>
+      </form>
+      {% elif current_user.is_client() and current_user.id == project.client_id %}
+      <form method="post" action="{{ url_for('projects.milestone_status', project_id=project.id, mid=m.id) }}" class="d-flex gap-1">
+        <select class="form-select form-select-sm" name="status"><option>Approved</option><option>In Progress</option></select>
+        <button class="btn btn-sm btn-outline-dark">Update</button>
+      </form>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% if project.submission_message %}
+<div class="card-fg p-3 mb-3">
+  <h2 class="h6">Latest submission</h2>
+  <p>{{ project.submission_message }}</p>
+  {% if project.submission_link %}<p><a href="{{ project.submission_link }}" target="_blank" rel="noopener">Project link</a></p>{% endif %}
+  {% if project.submission_file %}<p><a href="{{ url_for('uploaded_submission', filename=project.submission_file) }}">Download file</a></p>{% endif %}
+  {% if project.change_request %}<p class="text-warning">Change request: {{ project.change_request }}</p>{% endif %}
+</div>
+{% endif %}
+
+{% if project.student_explanation %}
+<div class="alert alert-secondary">Student note: {{ project.student_explanation }}</div>
+{% endif %}
+
+<div class="row g-3">
+  {% if current_user.is_student() and current_user.id == project.student_id and project.status in ['IN_PROGRESS','ASSIGNED','OVERDUE'] %}
+  <div class="col-lg-6">
+    <div class="card-fg p-3">
+      <h2 class="h6">Submit work</h2>
+      <form method="post" action="{{ url_for('projects.submit_work', project_id=project.id) }}" enctype="multipart/form-data">
+        <textarea class="form-control mb-2" name="submission_message" rows="3" required placeholder="What did you deliver?"></textarea>
+        <input class="form-control mb-2" name="submission_link" placeholder="Optional project URL">
+        <input class="form-control mb-2" type="file" name="submission_file">
+        <button class="btn btn-teal btn-sm" type="submit">Submit project</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if current_user.is_client() and current_user.id == project.client_id and project.status == 'SUBMITTED' %}
+  <div class="col-lg-6">
+    <div class="card-fg p-3">
+      <form method="post" action="{{ url_for('projects.approve', project_id=project.id) }}" class="mb-3">
+        <button class="btn btn-teal" data-confirm="Approve and release mock escrow?">Approve Project</button>
+      </form>
+      <form method="post" action="{{ url_for('projects.request_changes', project_id=project.id) }}">
+        <textarea class="form-control mb-2" name="change_request" required placeholder="What needs to change?"></textarea>
+        <button class="btn btn-outline-dark btn-sm">Request Changes</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if current_user.is_student() and current_user.id == project.student_id and project.status in ['OVERDUE','DISPUTED','IN_PROGRESS'] %}
+  <div class="col-lg-6">
+    <div class="card-fg p-3">
+      <h2 class="h6">Explanation / extension</h2>
+      <form method="post" action="{{ url_for('projects.explain', project_id=project.id) }}" class="mb-2">
+        <textarea class="form-control mb-2" name="student_explanation" required></textarea>
+        <button class="btn btn-sm btn-outline-dark">Send explanation</button>
+      </form>
+      <form method="post" action="{{ url_for('projects.request_extension', project_id=project.id) }}">
+        <input type="hidden" name="days" value="3">
+        <button class="btn btn-sm btn-outline-warning">Request +3 day extension</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if current_user.is_client() and current_user.id == project.client_id and project.status in ['OVERDUE','IN_PROGRESS','SUBMITTED','DISPUTED'] %}
+  <div class="col-lg-6">
+    <div class="card-fg p-3">
+      <form method="post" action="{{ url_for('projects.grant_extension', project_id=project.id) }}" class="mb-2">
+        <input type="hidden" name="days" value="3">
+        <button class="btn btn-sm btn-outline-dark">Grant +3 day extension</button>
+      </form>
+      <form method="post" action="{{ url_for('projects.refund_request', project_id=project.id) }}">
+        <textarea class="form-control mb-2" name="reason" placeholder="Why request a refund?"></textarea>
+        <button class="btn btn-sm btn-outline-danger" data-confirm="Open a dispute and mark mock escrow as Refund Requested?">Request refund</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="mt-3 d-flex flex-wrap gap-2">
+  {% if can_review %}
+    <a class="btn btn-gold" href="{{ url_for('reviews.create_review', project_id=project.id) }}">Leave a verified review</a>
+  {% elif project.status != 'COMPLETED' %}
+    <button class="btn btn-outline-secondary" disabled>Reviews unlock after completion</button>
+  {% elif my_review %}
+    <span class="badge text-bg-success">You already reviewed this project</span>
+  {% endif %}
+
+  {% if current_user.is_student() and current_user.id == project.student_id and project.status == 'COMPLETED' %}
+  <form method="post" action="{{ url_for('projects.add_portfolio', project_id=project.id) }}" class="d-flex flex-wrap gap-2 align-items-center">
+    <input class="form-control form-control-sm" name="project_link" placeholder="Public link" value="{{ project.submission_link or '' }}" style="max-width:220px">
+    <input class="form-control form-control-sm" name="contribution" placeholder="Your contribution" style="max-width:220px">
+    <label class="small"><input type="checkbox" name="is_public" {% if not portfolio_item or portfolio_item.is_public %}checked{% endif %}> Public</label>
+    <button class="btn btn-sm btn-teal">{{ 'Update portfolio' if portfolio_item else 'Add to Portfolio' }}</button>
+  </form>
+  {% endif %}
+
+  {% if project.is_participant(current_user.id) and project.status not in ['COMPLETED','REFUNDED','CANCELLED'] %}
+    {% if not open_dispute %}
+      <a class="btn btn-sm btn-outline-danger" href="{{ url_for('disputes.create_dispute', project_id=project.id) }}">Open dispute</a>
+    {% else %}
+      <a class="btn btn-sm btn-outline-warning" href="{{ url_for('disputes.detail', dispute_id=open_dispute.id) }}">View dispute</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

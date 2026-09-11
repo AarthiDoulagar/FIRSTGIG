@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Reviews · Admin{% endblock %}
+{% block content %}
+<h1 class="page-title h4">Reviews</h1>
+{% for r in reviews %}
+<div class="card-fg p-3 mb-2 d-flex justify-content-between">
+  <div>
+    <strong>{{ r.reviewer.name }}</strong> → {{ r.reviewed_user.name }} · {{ '⭐' * r.rating }}
+    <div class="small">{{ r.comment }}</div>
+  </div>
+  <form method="post" action="{{ url_for('admin.remove_review', review_id=r.id) }}">
+    <button class="btn btn-sm btn-outline-danger" data-confirm="Remove this review?">Remove</button>
+  </form>
+</div>
+{% endfor %}
+{% if not reviews %}<div class="empty card-fg">No reviews.</div>{% endif %}
+{% endblock %}

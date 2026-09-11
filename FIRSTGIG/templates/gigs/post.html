@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Post a gig · FirstGig{% endblock %}
+{% block content %}
+<div class="card-fg p-4">
+  <h1 class="h4 page-title">Post a gig</h1>
+  <form method="post" class="row g-3">
+    <div class="col-12"><label class="form-label">Title</label><input class="form-control" name="title" required placeholder="Build a responsive landing page"></div>
+    <div class="col-12"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="4" required></textarea></div>
+    <div class="col-md-4"><label class="form-label">Category</label>
+      <select class="form-select" name="category" required>
+        {% for c in categories %}<option>{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4"><label class="form-label">Budget (₹)</label><input class="form-control" type="number" name="budget" min="500" required></div>
+    <div class="col-md-4"><label class="form-label">Deadline</label><input class="form-control" type="date" name="deadline" required></div>
+    <div class="col-md-6"><label class="form-label">Required skills</label><input class="form-control" name="required_skills" placeholder="HTML, CSS, JavaScript"></div>
+    <div class="col-md-3"><label class="form-label">Difficulty</label>
+      <select class="form-select" name="difficulty"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+    </div>
+    <div class="col-md-3"><label class="form-label">Milestones</label><input class="form-control" type="number" name="milestone_count" min="1" max="8" value="1"></div>
+    <div class="col-12"><label class="form-label">Project requirements</label><textarea class="form-control" name="requirements" rows="3"></textarea></div>
+    <div class="col-12"><button class="btn btn-teal" type="submit">Publish gig</button></div>
+  </form>
+</div>
+{% endblock %}

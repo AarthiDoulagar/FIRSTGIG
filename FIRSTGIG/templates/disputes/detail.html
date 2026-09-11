@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Dispute #{{ dispute.id }}{% endblock %}
+{% block content %}
+<div class="card-fg p-4">
+  <h1 class="h4 page-title">Dispute #{{ dispute.id }}</h1>
+  <p>Project: <a href="{{ url_for('projects.detail', project_id=project.id) }}">{{ project.gig.title }}</a></p>
+  <p>Raised by {{ dispute.raiser.name }} · {{ dispute.status }}</p>
+  <p><strong>{{ dispute.reason }}</strong></p>
+  <p>{{ dispute.description }}</p>
+  {% if dispute.evidence %}<p class="small">Evidence: {{ dispute.evidence }}</p>{% endif %}
+  {% if dispute.admin_decision %}<p class="alert alert-info">Admin decision: {{ dispute.admin_decision }}</p>{% endif %}
+  {% if current_user.is_admin() and dispute.status != 'Resolved' %}
+    <a class="btn btn-teal" href="{{ url_for('admin.disputes_list') }}">Resolve in admin</a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Find gigs · FirstGig{% endblock %}
+{% block content %}
+<h1 class="page-title h3">Gig marketplace</h1>
+<p class="text-muted">Browse open work. Higher-value gigs are recommended to higher levels, but everyone can still see the board.</p>
+
+{% if recs %}
+<h2 class="h5 mt-3">🎯 Recommended For You</h2>
+<div class="row g-3 mb-4">
+  {% for score, gig, expl in recs %}
+  <div class="col-md-4">
+    <div class="card-fg p-3 h-100">
+      <span class="match-pill">{{ score }}% Match</span>
+      <h3 class="h6 mt-2"><a href="{{ url_for('gigs.detail', gig_id=gig.id) }}">{{ gig.title }}</a></h3>
+      <p class="small text-muted mb-0">{{ expl }}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<form class="card-fg p-3 mb-4 row g-2 align-items-end" method="get">
+  <div class="col-md-3"><label class="form-label small">Search</label><input class="form-control" name="q" value="{{ filters.q }}"></div>
+  <div class="col-md-2"><label class="form-label small">Category</label>
+    <select class="form-select" name="category">
+      <option value="">All</option>
+      {% for c in categories %}<option value="{{ c }}" {% if filters.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2"><label class="form-label small">Skill</label><input class="form-control" name="skill" value="{{ filters.skill }}"></div>
+  <div class="col-md-2"><label class="form-label small">Difficulty</label>
+    <select class="form-select" name="difficulty">
+      <option value="">All</option>
+      {% for d in ['Beginner','Intermediate','Advanced'] %}<option {% if filters.difficulty==d %}selected{% endif %}>{{ d }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2"><label class="form-label small">Budget</label>
+    <select class="form-select" name="budget">
+      <option value="">All</option>
+      <option value="under5" {% if filters.budget=='under5' %}selected{% endif %}>≤ ₹5,000</option>
+      <option value="5to15" {% if filters.budget=='5to15' %}selected{% endif %}>₹5k–15k</option>
+      <option value="15plus" {% if filters.budget=='15plus' %}selected{% endif %}>₹15,000+</option>
+    </select>
+  </div>
+  <div class="col-md-1"><button class="btn btn-teal w-100" type="submit">Go</button></div>
+</form>
+
+<div class="row g-3">
+  {% if not gigs %}<div class="col-12"><div class="empty card-fg">No gigs match those filters.</div></div>{% endif %}
+  {% for gig in gigs %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card-fg p-3 h-100 d-flex flex-column">
+      <div class="d-flex justify-content-between"><span class="badge text-bg-light">{{ gig.difficulty }}</span><strong>₹{{ "{:,}".format(gig.budget) }}</strong></div>
+      <h3 class="h6 mt-2">{{ gig.title }}</h3>
+      <p class="small text-muted mb-1">{{ gig.client.name }}{% if gig.client.client_profile %} · {{ gig.client.client_profile.company_name }}{% endif %}</p>
+      <p class="small mb-2">Deadline {{ gig.deadline }} · Posted {{ gig.created_at.strftime('%d %b') }}</p>
+      <div class="mb-2">{% for s in gig.skill_list()[:5] %}<span class="chip">{{ s }}</span>{% endfor %}</div>
+      <a class="btn btn-sm btn-teal mt-auto" href="{{ url_for('gigs.detail', gig_id=gig.id) }}">Apply</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

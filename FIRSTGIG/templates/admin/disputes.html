@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Disputes · Admin{% endblock %}
+{% block content %}
+<h1 class="page-title h4">Disputes</h1>
+{% for d in disputes %}
+<div class="card-fg p-3 mb-3">
+  <div class="d-flex justify-content-between"><strong>#{{ d.id }} {{ d.reason }}</strong><span>{{ d.status }}</span></div>
+  <p class="small mb-1">{{ d.project.gig.title }} · raised by {{ d.raiser.name }}</p>
+  <p>{{ d.description }}</p>
+  {% if d.status != 'Resolved' %}
+  <form method="post" action="{{ url_for('admin.mark_review', dispute_id=d.id) }}" class="d-inline">
+    <button class="btn btn-sm btn-outline-dark">Mark under review</button>
+  </form>
+  <form method="post" action="{{ url_for('admin.resolve', dispute_id=d.id) }}" class="d-inline">
+    <select name="decision" class="form-select form-select-sm d-inline-block" style="width:auto">
+      <option>Refund Client</option>
+      <option>Release Payment</option>
+      <option>Extend Deadline</option>
+      <option>Mark Project Completed</option>
+    </select>
+    <button class="btn btn-sm btn-teal" data-confirm="Resolve this dispute?">Resolve</button>
+  </form>
+  {% else %}
+    <p class="mb-0 text-success">Decision: {{ d.admin_decision }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+{% if not disputes %}<div class="empty card-fg">No disputes.</div>{% endif %}
+{% endblock %}

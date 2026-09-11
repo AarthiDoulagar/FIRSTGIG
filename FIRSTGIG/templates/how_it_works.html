@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}How it works · FirstGig{% endblock %}
+{% block content %}
+<h1 class="page-title mb-2">How FirstGig works</h1>
+<p class="text-muted mb-4">A progression system, not a generic freelance board.</p>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card-fg p-4 h-100">
+      <h2 class="h5">Students</h2>
+      <ol>
+        <li>Register with college details and skills.</li>
+        <li>Complete mock college-email verification → 🎓 Verified Student.</li>
+        <li>Browse the marketplace. Rule-based recommendations match skills, interests, budget band, and difficulty.</li>
+        <li>Apply once per gig with a proposal.</li>
+        <li>When hired, work against milestones while budget sits in mock escrow.</li>
+        <li>Submit work. Client approves → COMPLETED → payment released (simulated) → reviews unlock.</li>
+        <li>Completed gigs raise your level automatically. Cancelled/refunded work does not count.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card-fg p-4 h-100">
+      <h2 class="h5">Clients</h2>
+      <ol>
+        <li>Post a gig with budget, deadline, skills, and milestone count.</li>
+        <li>Compare applicants: level, rating, reliability, on-time %, portfolio.</li>
+        <li>Accept one student — others are rejected, project + held escrow are created.</li>
+        <li>Approve, request changes, extend a deadline, or open a dispute.</li>
+        <li>Overdue work is flagged. Refund is never automatic; admin can resolve.</li>
+      </ol>
+      <h2 class="h5 mt-4">Levels</h2>
+      <ul class="mb-0">
+        {% for lv in levels %}
+          <li>{{ lv.icon }} {{ lv.name }} — recommended ₹{{ "{:,}".format(lv.budget[0]) }}–₹{{ "{:,}".format(lv.budget[1]) }}{% if lv.key == 'pro' %}+{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

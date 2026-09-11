@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Manage gigs · FirstGig{% endblock %}
+{% block content %}
+<h1 class="page-title h3 mb-3">Manage gigs</h1>
+<a class="btn btn-teal btn-sm mb-3" href="{{ url_for('gigs.post_gig') }}">Post a Gig</a>
+{% if not gigs %}<div class="empty card-fg">You have not posted any gigs.</div>{% endif %}
+<div class="table-responsive card-fg">
+<table class="table table-fg mb-0">
+  <thead><tr><th>Title</th><th>Budget</th><th>Status</th><th>Apps</th><th></th></tr></thead>
+  <tbody>
+  {% for g in gigs %}
+    <tr>
+      <td>{{ g.title }}</td>
+      <td>₹{{ "{:,}".format(g.budget) }}</td>
+      <td>{{ g.status }}</td>
+      <td>{{ g.applications.count() }}</td>
+      <td>
+        <a href="{{ url_for('gigs.detail', gig_id=g.id) }}">View</a>
+        · <a href="{{ url_for('gigs.applicants', gig_id=g.id) }}">Applications</a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

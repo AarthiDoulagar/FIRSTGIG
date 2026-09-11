@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Notifications · FirstGig{% endblock %}
+{% block content %}
+<h1 class="page-title h3 mb-3">Notifications</h1>
+{% if not items %}
+  <div class="empty card-fg">You're all caught up.</div>
+{% else %}
+  <div class="list-group">
+    {% for n in items %}
+      <a class="list-group-item list-group-item-action" href="{{ n.link or url_for('main.dashboard_redirect') }}">
+        <div>{{ n.message }}</div>
+        <small class="text-muted">{{ n.created_at.strftime('%d %b %Y %H:%M') }}</small>
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
