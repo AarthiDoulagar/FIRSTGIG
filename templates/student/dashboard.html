@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard — FirstGig{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3rem;">
+  <div class="container">
+    <!-- Welcome Header & Verified Badge -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap; gap:1.25rem;">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
+          <h1 style="font-size:2.4rem; color:var(--c-navy); margin:0;">
+            Welcome back, {{ profile.full_name }}!
+          </h1>
+          {% if profile.is_verified %}
+            <span class="badge-status deadline-completed">🎓 Verified Student</span>
+          {% else %}
+            <span class="badge-status deadline-approaching">Pending Verification</span>
+          {% endif %}
+        </div>
+        <p style="font-size:1.05rem; color:var(--c-muted); margin:0;">
+          {{ profile.college_name }} • {{ profile.branch }} ({{ profile.academic_year }})
+        </p>
+      </div>
+
+      <div style="display:flex; gap:0.75rem;">
+        <a href="{{ url_for('gigs') }}" class="btn btn-teal">
+          🔍 Browse Gigs
+        </a>
+        <a href="{{ url_for('student_profile') }}" class="btn btn-outline">
+          👤 View Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Career Progression Banner -->
+    <div class="career-meter-card" style="margin-bottom:2.5rem; padding:2rem 2.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <span style="font-size:0.85rem; font-weight:800; color:var(--c-muted); text-transform:uppercase;">Your Current Freelancer Tier:</span>
+          <h2 style="font-size:2rem; color:var(--c-navy); margin-top:0.25rem;">
+            {{ tier_info.badge }}
+          </h2>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:1.15rem; font-weight:800; color:var(--c-teal);">{{ tier_info.status_message }}</span>
+          <div style="font-size:0.85rem; color:var(--c-muted);">Calculated automatically from {{ tier_info.current_gigs }} completed gigs</div>
+        </div>
+      </div>
+
+      <div class="career-progress-bar-container">
+        <div class="career-progress-bar-fill" style="width: {{ tier_info.progress_pct }}%;"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--c-muted); font-weight:600;">
+        <span>🟢 FirstGig Beginner</span>
+        <span>🔵 Active</span>
+        <span>🟣 Rising</span>
+        <span>⭐ Verified</span>
+        <span>🏆 Trusted</span>
+        <span>🚀 Pro Student</span>
+      </div>
+    </div>
+
+    <!-- 4 Stats Cards Grid -->
+    <div class="grid-4" style="margin-bottom:3rem;">
+      <div class="stat-card">
+        <div class="stat-card-title">Completed Projects</div>
+        <div class="stat-card-val">{{ profile.completed_gigs_count }}</div>
+        <small style="color:var(--c-teal); font-weight:600;">✓ Verified deliverables</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Client Rating</div>
+        <div class="stat-card-val">⭐ {{ profile.rating }} / 5.0</div>
+        <small style="color:var(--c-muted);">Based on client reviews</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Reliability Score</div>
+        <div class="stat-card-val">🛡️ {{ profile.reliability_rate }}%</div>
+        <small style="color:var(--c-success); font-weight:600;">{{ profile.disputes_count }} Disputes</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Mock Escrow Balance</div>
+        <div class="stat-card-val" style="color:var(--c-teal);">₹{{ "{:,}".format(simulated_held_escrow) }}</div>
+        <small style="color:#854D0E; font-weight:600;">Held in simulated escrow</small>
+      </div>
+    </div>
+
+    <!-- Active Projects Table -->
+    <div class="card" style="margin-bottom:3rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.45rem; color:var(--c-navy); margin:0;">Your Projects</h3>
+        <a href="{{ url_for('projects_list') }}" style="font-size:0.92rem; font-weight:700; color:var(--c-teal);">View All Projects →</a>
+      </div>
+
+      {% if active_projects %}
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Client</th>
+                <th>Budget</th>
+                <th>Deadline Status</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in active_projects %}
+                <tr>
+                  <td>
+                    <strong>{{ p.title }}</strong>
+                  </td>
+                  <td>{{ p.client.company_name }}</td>
+                  <td><strong>₹{{ "{:,}".format(p.budget) }}</strong></td>
+                  <td>
+                    <span class="badge-status {{ p.deadline_ui_status.css_class }}">
+                      {{ p.deadline_ui_status.badge }} ({{ p.deadline_ui_status.days }}d)
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge-status deadline-completed">
+                      {{ p.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{{ url_for('project_detail', project_id=p.id) }}" class="btn btn-sm btn-teal">
+                      Workspace
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="text-align:center; padding:2rem; color:var(--c-muted);">
+          <p>You have no active projects currently.</p>
+          <a href="{{ url_for('gigs') }}" class="btn btn-sm btn-teal">Find Gigs to Apply</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Recommended Gigs (Rule-Based Matching) -->
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem;">
+        <div>
+          <h3 style="font-size:1.45rem; color:var(--c-navy); margin:0;">🎯 Recommended For Your Level & Skills</h3>
+          <p style="font-size:0.95rem; color:var(--c-muted); margin:0;">Matched specifically to your skills ({{ profile.skills|join(', ') }})</p>
+        </div>
+        <a href="{{ url_for('gigs') }}" style="font-size:0.92rem; font-weight:700; color:var(--c-teal);">Browse All Gigs →</a>
+      </div>
+
+      <div class="grid-3">
+        {% for gig in recommended_gigs %}
+          <div class="gig-card">
+            <div>
+              <div class="gig-card-top">
+                <span class="gig-category-badge">{{ gig.category }}</span>
+                <span class="match-badge-pill">
+                  🎯 {{ gig.match_info.match_pct }}% Match
+                </span>
+              </div>
+
+              <div class="recommendation-banner">
+                💡 {{ gig.match_info.reason }}
+              </div>
+
+              <h4 class="gig-title" style="font-size:1.2rem;">{{ gig.title }}</h4>
+              <p class="gig-desc">{{ gig.description }}</p>
+
+              <div class="gig-meta-row">
+                <div class="gig-meta-item">⏱️ {{ gig.deadline_days }} Days</div>
+                <div class="gig-meta-item">📊 {{ gig.difficulty }}</div>
+              </div>
+            </div>
+
+            <div class="gig-card-footer">
+              <span class="gig-budget-tag">₹{{ "{:,}".format(gig.budget) }}</span>
+              <a href="{{ url_for('gig_detail', gig_id=gig.id) }}" class="btn btn-sm btn-teal">Apply</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

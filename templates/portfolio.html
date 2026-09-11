@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio Showcase — FirstGig{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3.5rem; padding-bottom:5rem;">
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <span class="section-tag">Showcase</span>
+        <h1 style="font-size:2.4rem; color:var(--c-navy); margin:0.3rem 0;">Student Portfolio Showcase</h1>
+        <p style="font-size:1.05rem; color:var(--c-muted); margin:0;">
+          Real, completed, client-verified deliverables built by student freelancers.
+        </p>
+      </div>
+
+      {% if current_user and current_user.role == 'student' %}
+        <button type="button" class="btn btn-teal" onclick="document.getElementById('add-portfolio-modal').style.display='block'">
+          ➕ Add to Portfolio
+        </button>
+      {% endif %}
+    </div>
+
+    <!-- Portfolio Grid -->
+    {% if portfolio_items %}
+      <div class="grid-3">
+        {% for item in portfolio_items %}
+          <div class="portfolio-card">
+            <div class="portfolio-img-box">
+              <span>💻</span>
+            </div>
+            <div class="portfolio-body">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span class="review-verified-badge">✓ Verified FirstGig Project</span>
+                {% if current_user and current_user.role == 'student' and item.student_id == current_user.student_profile.id %}
+                  <form method="POST" action="{{ url_for('toggle_portfolio_visibility', item_id=item.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-outline" style="padding:0.2rem 0.6rem; font-size:0.75rem;">
+                      {{ "Public" if item.is_public else "Hidden" }}
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+
+              <h3 style="font-size:1.25rem; color:var(--c-navy); margin-bottom:0.4rem;">{{ item.title }}</h3>
+              <p style="font-size:0.92rem; color:var(--c-muted); line-height:1.55; margin-bottom:1rem;">
+                {{ item.description }}
+              </p>
+
+              <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem;">
+                {% for s in item.skills_used.split(',') %}
+                  <span class="skill-pill">{{ s.strip() }}</span>
+                {% endfor %}
+              </div>
+
+              {% if item.client_review_snippet %}
+                <div style="background:var(--c-cream); border-left:3px solid var(--c-gold); padding:0.6rem 0.8rem; border-radius:0 8px 8px 0; margin-bottom:1rem; font-size:0.85rem; font-style:italic;">
+                  "{{ item.client_review_snippet }}"
+                </div>
+              {% endif %}
+
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--c-muted); border-top:1px solid var(--c-border); padding-top:0.75rem;">
+                <span>Completed: {{ item.completion_date }}</span>
+                {% if item.project_link %}
+                  <a href="{{ item.project_link }}" target="_blank" rel="noopener" style="font-weight:700; color:var(--c-teal);">
+                    View Project ↗
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align:center; padding:4rem 2rem;">
+        <div style="font-size:3rem; margin-bottom:1rem;">📁</div>
+        <h3>No portfolio deliverables added yet</h3>
+        <p>Completed client projects can be added to your public portfolio to attract clients.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Add Portfolio Item Modal -->
+{% if current_user and current_user.role == 'student' %}
+<div id="add-portfolio-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(23,37,84,0.6); z-index:9999; backdrop-filter:blur(4px);">
+  <div style="max-width:540px; margin:6vh auto; background:var(--c-white); border-radius:22px; padding:2.5rem; max-height:85vh; overflow-y:auto; box-shadow:var(--shadow-lg);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <h3 style="margin:0; color:var(--c-navy);">Add Showcase Item</h3>
+      <button type="button" onclick="document.getElementById('add-portfolio-modal').style.display='none'" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
+    </div>
+
+    <form method="POST" action="{{ url_for('add_portfolio_item') }}">
+      <div class="form-group">
+        <label class="form-label" for="port_title">Project Title</label>
+        <input type="text" id="port_title" name="title" required class="form-control" placeholder="e.g. Modern Landing Page in Tailwind">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="port_desc">Description</label>
+        <textarea id="port_desc" name="description" rows="3" required class="form-control" placeholder="What problem did you solve and what features were built?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="port_skills">Skills Used (Comma-separated)</label>
+        <input type="text" id="port_skills" name="skills_used" required class="form-control" placeholder="HTML, CSS, JavaScript, Responsive Design">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="port_link">Project Link / GitHub (Optional)</label>
+        <input type="url" id="port_link" name="project_link" class="form-control" placeholder="https://github.com/...">
+      </div>
+      <button type="submit" class="btn btn-teal" style="width:100%;">Add to Portfolio</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

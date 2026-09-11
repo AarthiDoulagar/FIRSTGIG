@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} — FirstGig Workspace{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3rem; padding-bottom:6rem;">
+  <div class="container container-narrow">
+    <!-- Back to Projects -->
+    <div style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+      <a href="{{ url_for('projects_list') }}" style="font-weight:600; color:var(--c-teal);">
+        ← Back to Projects
+      </a>
+      <!-- Dispute Launcher -->
+      {% if project.status != 'COMPLETED' %}
+        <button type="button" class="btn btn-sm btn-outline" style="color:var(--c-danger); border-color:var(--c-danger);" onclick="document.getElementById('dispute-modal').style.display='block'">
+          ⚠️ Report Issue / Open Dispute
+        </button>
+      {% endif %}
+    </div>
+
+    <!-- Main Project Header Card -->
+    <div class="card" style="margin-bottom:2rem; padding:2.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; flex-wrap:wrap;">
+            <span class="badge-status {{ project.deadline_ui_status.css_class }}">
+              {{ project.deadline_ui_status.badge }}
+            </span>
+            <span class="badge-status deadline-completed">
+              Status: {{ project.status }}
+            </span>
+          </div>
+          <h1 style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); margin:0.25rem 0 0.5rem 0; color:var(--c-navy);">
+            {{ project.title }}
+          </h1>
+          <div style="font-size:0.95rem; color:var(--c-muted);">
+            Client: <strong>{{ project.client.company_name }}</strong> • Student: <strong>{{ project.student.full_name }}</strong> ({{ project.student.career_level_info.badge }})
+          </div>
+        </div>
+
+        <div style="text-align:right;">
+          <span style="font-size:0.85rem; color:var(--c-muted); display:block;">Total Budget</span>
+          <span class="gig-budget-tag" style="font-size:2.2rem; color:var(--c-navy);">₹{{ "{:,}".format(project.budget) }}</span>
+        </div>
+      </div>
+
+      <p style="color:var(--c-dark); line-height:1.65; margin-bottom:1.5rem;">
+        {{ project.description }}
+      </p>
+
+      <!-- Deadline UI Card (Prompt 19) -->
+      <div style="background:var(--c-cream); border:1px solid var(--c-border); border-radius:16px; padding:1.5rem; margin-top:1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap;">
+          <div>
+            <strong style="color:var(--c-navy); font-size:1.05rem;">Project Deadline:</strong>
+            <span style="color:var(--c-muted); margin-left:0.4rem;">{{ project.deadline_date.strftime('%d %b %Y, %I:%M %p') }}</span>
+          </div>
+          <div style="font-weight:700;">
+            <span class="badge-status {{ project.deadline_ui_status.css_class }}">
+              {{ project.deadline_ui_status.label }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Progress bar towards deadline -->
+        <div class="career-progress-bar-container" style="height:10px; margin:0.75rem 0;">
+          <div class="career-progress-bar-fill" style="width: {% if project.status == 'COMPLETED' %}100%{% elif project.deadline_ui_status.days <= 0 %}100%; background:#EF4444;{% elif project.deadline_ui_status.days <= 3 %}75%; background:#F59E0B;{% else %}35%; background:var(--c-teal);{% endif %}"></div>
+        </div>
+        <small style="color:var(--c-muted);">
+          {% if project.deadline_ui_status.days <= 0 and project.status != 'COMPLETED' %}
+            <span style="color:#B91C1C; font-weight:700;">Notice: This deliverable is overdue. The client has not requested an automatic refund.</span>
+          {% else %}
+            Timely delivery preserves student 95%+ reliability rating.
+          {% endif %}
+        </small>
+      </div>
+    </div>
+
+    <!-- MOCK ESCROW UI (Prompt 20) -->
+    <div class="escrow-box">
+      <!-- Mandatory disclaimer -->
+      <div class="escrow-disclaimer-banner">
+        <span>🛡️</span>
+        <div>
+          <strong>Demo Mode — Payments are simulated. No real money is transferred.</strong><br>
+          <span style="font-size:0.88rem; font-weight:normal;">Simulated funds protect student effort and client satisfaction before deliverables begin.</span>
+        </div>
+      </div>
+
+      <div class="escrow-header-row">
+        <div>
+          <span style="font-size:0.85rem; font-weight:700; color:var(--c-muted); text-transform:uppercase;">Escrow Allocation</span>
+          <div class="escrow-amount-tag">Payment: ₹{{ "{:,}".format(project.budget) }}</div>
+        </div>
+        <div>
+          <span class="badge-status" style="background:rgba(224,183,90,0.25); color:#854D0E; font-size:1rem; padding:0.5rem 1.2rem; border:1px solid rgba(224,183,90,0.6);">
+            STATUS: {{ project.escrow_status.upper() }} IN MOCK ESCROW
+          </span>
+        </div>
+      </div>
+
+      <!-- 5-Step Visual Stepper (Teal = completed, Gold = current, Gray = upcoming) -->
+      <div class="escrow-stepper">
+        <div class="escrow-step-connector"></div>
+        {% for step in project.escrow_stepper_info.steps %}
+          <div class="escrow-step {% if step.done and not step.active %}done{% elif step.active %}active{% endif %}">
+            <div class="escrow-step-circle">
+              {% if step.done and not step.active %}✓{% else %}{{ step.num }}{% endif %}
+            </div>
+            <div class="escrow-step-title">{{ step.name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- MILESTONES SECTION (Prompt 21) -->
+    <div class="card" style="margin-bottom:2rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h3 style="font-size:1.4rem; color:var(--c-navy); margin:0;">Project Milestones ({{ project.milestones|length }})</h3>
+        <span style="font-size:0.9rem; color:var(--c-muted);">Phased execution</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        {% for m in project.milestones %}
+          <div style="border:1px solid var(--c-border); border-radius:14px; padding:1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <h4 style="font-size:1.1rem; color:var(--c-navy); margin:0;">{{ m.title }}</h4>
+                <span class="badge-status {% if m.status == 'Approved' %}deadline-completed{% elif m.status == 'Submitted' %}deadline-approaching{% else %}deadline-plenty{% endif %}" style="font-size:0.75rem;">
+                  {{ m.status }}
+                </span>
+              </div>
+              <p style="font-size:0.9rem; color:var(--c-muted); margin-top:0.25rem; margin-bottom:0;">{{ m.description }}</p>
+            </div>
+            <div style="text-align:right;">
+              <strong style="font-size:1.15rem; color:var(--c-navy);">₹{{ "{:,}".format(m.amount) }}</strong>
+              <div style="font-size:0.8rem; color:var(--c-muted);">Due: {{ m.deadline_date.strftime('%d %b %Y') }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- PROJECT SUBMISSIONS & CLIENT APPROVAL (Prompt 22) -->
+    <div class="card" style="margin-bottom:2rem;">
+      <h3 style="font-size:1.4rem; color:var(--c-navy); margin-bottom:1.25rem;">Deliverables & Work Submission</h3>
+
+      <!-- Existing Submissions List -->
+      {% if project.submissions %}
+        <div style="margin-bottom:2rem; display:flex; flex-direction:column; gap:1rem;">
+          {% for sub in project.submissions %}
+            <div style="background:var(--c-cream); border:1.5px solid var(--c-border); border-radius:16px; padding:1.5rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <strong>Submission #{{ loop.index }}</strong>
+                <span class="badge-status {% if sub.status == 'approved' %}deadline-completed{% else %}deadline-approaching{% endif %}">
+                  {{ sub.status.upper() }}
+                </span>
+              </div>
+              <p style="margin-bottom:0.75rem; color:var(--c-dark);">{{ sub.message }}</p>
+              {% if sub.description %}
+                <p style="font-size:0.92rem; color:var(--c-muted); margin-bottom:0.75rem;">{{ sub.description }}</p>
+              {% endif %}
+              {% if sub.project_link %}
+                <div style="margin-top:0.5rem;">
+                  🔗 Deliverable URL: <a href="{{ sub.project_link }}" target="_blank" rel="noopener" style="font-weight:700; color:var(--c-teal);">{{ sub.project_link }}</a>
+                </div>
+              {% endif %}
+              <div style="font-size:0.8rem; color:var(--c-muted); margin-top:0.75rem;">
+                Submitted on {{ sub.submitted_at.strftime('%d %b %Y at %I:%M %p') }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Actions based on role & project status -->
+      {% if project.status == 'COMPLETED' %}
+        <div style="background:rgba(15,118,110,0.08); border:1px solid var(--c-teal); border-radius:14px; padding:1.5rem; text-align:center;">
+          <h4 style="color:var(--c-dark-teal); font-size:1.2rem; margin-bottom:0.4rem;">🎉 Project Successfully Completed!</h4>
+          <p style="margin:0; font-size:0.95rem; color:var(--c-muted);">Simulated mock escrow of ₹{{ "{:,}".format(project.budget) }} has been released to the student.</p>
+        </div>
+
+      {% elif current_user.role == 'student' %}
+        <!-- Student Submission Form -->
+        <h4 style="font-size:1.15rem; color:var(--c-navy); margin-bottom:1rem;">Submit Final Deliverable</h4>
+        <form method="POST" action="{{ url_for('submit_project_work', project_id=project.id) }}">
+          <div class="form-group">
+            <label class="form-label" for="sub_message">Submission Summary</label>
+            <input type="text" id="sub_message" name="message" required class="form-control" placeholder="e.g. Completed all landing page sections, responsive on mobile & desktop">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sub_desc">Technical Details & Notes</label>
+            <textarea id="sub_desc" name="description" rows="4" class="form-control" placeholder="Detail how to test your work, code structure, deployment notes, etc."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sub_link">Project Deliverable Link (GitHub, Live URL, Figma, Drive)</label>
+            <input type="url" id="sub_link" name="project_link" required class="form-control" placeholder="https://github.com/... or https://vercel.app/...">
+          </div>
+          <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+            <button type="submit" name="action_type" value="submit" class="btn btn-teal">
+              🚀 Submit Work for Client Approval
+            </button>
+            <button type="submit" name="action_type" value="draft" class="btn btn-outline">
+              💾 Save Draft
+            </button>
+          </div>
+        </form>
+
+      {% elif current_user.role == 'client' %}
+        <!-- Client Approval & Revisions Form -->
+        {% if project.status == 'SUBMITTED' or project.submissions %}
+          <div style="background:rgba(224,183,90,0.12); border:1px solid rgba(224,183,90,0.4); border-radius:16px; padding:1.75rem;">
+            <h4 style="color:var(--c-navy); margin-bottom:0.5rem;">Client Review Decision</h4>
+            <p style="font-size:0.95rem; color:var(--c-muted); margin-bottom:1.5rem;">
+              Inspect the student's submission deliverables. Approving releases ₹{{ "{:,}".format(project.budget) }} from Mock Escrow and prompts review.
+            </p>
+
+            <form method="POST" action="{{ url_for('approve_project_work', project_id=project.id) }}">
+              <div class="form-group">
+                <label class="form-label" for="client_review_comment">Leave a Verified Review for {{ project.student.full_name }}</label>
+                <textarea id="client_review_comment" name="comment" rows="3" required class="form-control" placeholder="Share your experience working with this student freelancer..."></textarea>
+              </div>
+
+              <div class="form-group" style="max-width:200px; margin-bottom:1.5rem;">
+                <label class="form-label" for="client_rating">Star Rating (1 to 5)</label>
+                <select id="client_rating" name="rating" class="form-control">
+                  <option value="5" selected>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                  <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+                  <option value="3">⭐⭐⭐ (3 Stars)</option>
+                  <option value="2">⭐⭐ (2 Stars)</option>
+                  <option value="1">⭐ (1 Star)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <button type="submit" name="decision" value="approve" class="btn btn-teal">
+                  ✓ Approve Project & Release Escrow
+                </button>
+                <button type="submit" name="decision" value="request_changes" class="btn btn-outline">
+                  🔄 Request Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        {% else %}
+          <div style="text-align:center; padding:1.5rem; color:var(--c-muted);">
+            Waiting for student to submit project deliverables.
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- Active Dispute Info if any -->
+    {% if project.disputes %}
+      <div class="card" style="border-color:#EF4444; background:rgba(239,68,68,0.03);">
+        <h4 style="color:#B91C1C; margin-bottom:0.5rem;">⚠️ Active Dispute Filed</h4>
+        {% for d in project.disputes %}
+          <p style="margin-bottom:0.5rem;"><strong>Reason:</strong> {{ d.reason }}</p>
+          <p style="font-size:0.95rem; color:var(--c-muted); margin-bottom:0.5rem;"><strong>Details:</strong> {{ d.description }}</p>
+          <span class="badge-status deadline-overdue">Dispute Status: {{ d.status }}</span>
+          {% if d.admin_decision %}
+            <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(239,68,68,0.2);">
+              <strong>Admin Decision:</strong> {{ d.admin_decision }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Dispute Modal (Prompt 25) -->
+<div id="dispute-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(23,37,84,0.6); z-index:9999; backdrop-filter:blur(4px);">
+  <div style="max-width:540px; margin:7vh auto; background:var(--c-white); border-radius:22px; padding:2.5rem; max-height:85vh; overflow-y:auto; box-shadow:var(--shadow-lg);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <h3 style="margin:0; color:var(--c-navy);">Open a Project Dispute</h3>
+      <button type="button" onclick="document.getElementById('dispute-modal').style.display='none'" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
+    </div>
+
+    <p style="font-size:0.95rem; color:var(--c-muted); margin-bottom:1.5rem;">
+      Disputes are escalated to platform administrators for formal mediation and escrow adjustment.
+    </p>
+
+    <form method="POST" action="{{ url_for('file_dispute', project_id=project.id) }}">
+      <div class="form-group">
+        <label class="form-label" for="disp_reason">Reason for Dispute</label>
+        <select id="disp_reason" name="reason" class="form-control" required>
+          <option value="Unresponsive Partner">Unresponsive Partner</option>
+          <option value="Deliverables Do Not Match Specifications">Deliverables Do Not Match Specifications</option>
+          <option value="Missed Critical Deadline">Missed Critical Deadline</option>
+          <option value="Payment or Milestone Conflict">Payment or Milestone Conflict</option>
+          <option value="Other Scope Disagreement">Other Scope Disagreement</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="disp_desc">Detailed Description</label>
+        <textarea id="disp_desc" name="description" rows="4" required class="form-control" placeholder="Provide full context for platform administrators..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="disp_evid">Evidence (Links, Message excerpts, etc.)</label>
+        <input type="text" id="disp_evid" name="evidence" class="form-control" placeholder="https://github.com/pull/... or context">
+      </div>
+
+      <button type="submit" class="btn btn-navy" style="width:100%; margin-top:0.5rem; background:#B91C1C; border-color:#B91C1C;">
+        Submit Dispute to Admin
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

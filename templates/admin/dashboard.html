@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Portal — FirstGig SaaS Dashboard{% endblock %}
+
+{% block head_extra %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:2.5rem; padding-bottom:5rem;">
+  <div class="container">
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <h1 style="font-size:2.2rem; color:var(--c-navy); margin:0;">Platform Administration</h1>
+          <span class="badge-status deadline-completed" style="font-size:0.8rem;">🛡️ Superadmin Access</span>
+        </div>
+        <p style="font-size:1rem; color:var(--c-muted); margin-top:0.25rem;">
+          Oversight of student verification, mock escrow ledgers, and dispute arbitration.
+        </p>
+      </div>
+
+      <div style="display:flex; gap:0.75rem;">
+        <span class="badge-status" style="background:rgba(224,183,90,0.2); color:#854D0E; font-weight:800;">
+          Simulated Sandbox Active
+        </span>
+      </div>
+    </div>
+
+    <!-- 11 Key Metric Stat Cards (Prompt 26) -->
+    <div class="grid-4" style="margin-bottom:1.5rem;">
+      <div class="stat-card">
+        <div class="stat-card-title">Total Students</div>
+        <div class="stat-card-val">{{ stats.total_students }}</div>
+        <small style="color:var(--c-teal); font-weight:700;">{{ stats.verified_students }} Verified ({{ ((stats.verified_students / stats.total_students)*100)|int if stats.total_students else 0 }}%)</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Total Clients</div>
+        <div class="stat-card-val">{{ stats.total_clients }}</div>
+        <small style="color:var(--c-muted);">Hiring entities</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Marketplace Gigs</div>
+        <div class="stat-card-val">{{ stats.total_gigs }}</div>
+        <small style="color:var(--c-teal); font-weight:700;">{{ stats.open_gigs }} Open currently</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Active Projects</div>
+        <div class="stat-card-val">{{ stats.active_projects }}</div>
+        <small style="color:var(--c-muted);">In progress & submitted</small>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:1.5rem;">
+      <div class="stat-card">
+        <div class="stat-card-title">Completed Projects</div>
+        <div class="stat-card-val" style="color:var(--c-success);">{{ stats.completed_projects }}</div>
+        <small style="color:var(--c-success); font-weight:600;">✓ Delivered on time</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Overdue Deliverables</div>
+        <div class="stat-card-val" style="color:var(--c-danger);">{{ stats.overdue_projects }}</div>
+        <small style="color:var(--c-danger); font-weight:600;">⚠️ Needs attention</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Disputed Projects</div>
+        <div class="stat-card-val" style="color:#B45309;">{{ stats.disputed_projects }}</div>
+        <small style="color:#B45309; font-weight:600;">Mediation required</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Verified Students</div>
+        <div class="stat-card-val" style="color:var(--c-teal);">{{ stats.verified_students }}</div>
+        <small style="color:var(--c-muted);">College ID verified</small>
+      </div>
+    </div>
+
+    <!-- Escrow Financial Snapshot -->
+    <div style="background:var(--hero-gradient); border-radius:20px; padding:2rem; color:var(--c-white); margin-bottom:3rem; box-shadow:var(--shadow-md);">
+      <div style="font-size:0.9rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:var(--c-gold); margin-bottom:1rem;">
+        🛡️ Mock Escrow Reserve Flow (Simulated Demo)
+      </div>
+      <div class="grid-3" style="margin-bottom:0.5rem;">
+        <div>
+          <div style="font-size:0.85rem; color:rgba(255,255,255,0.75);">Mock Escrow Held</div>
+          <div style="font-family:var(--font-heading); font-size:2.2rem; color:var(--c-gold);">
+            ₹{{ "{:,}".format(stats.escrow_held) }}
+          </div>
+          <small style="color:rgba(255,255,255,0.7);">Locked in ongoing projects</small>
+        </div>
+        <div>
+          <div style="font-size:0.85rem; color:rgba(255,255,255,0.75);">Total Released to Students</div>
+          <div style="font-family:var(--font-heading); font-size:2.2rem; color:var(--c-white);">
+            ₹{{ "{:,}".format(stats.escrow_released) }}
+          </div>
+          <small style="color:rgba(255,255,255,0.7);">From approved deliverables</small>
+        </div>
+        <div>
+          <div style="font-size:0.85rem; color:rgba(255,255,255,0.75);">Refunded to Clients</div>
+          <div style="font-family:var(--font-heading); font-size:2.2rem; color:rgba(255,255,255,0.9);">
+            ₹{{ "{:,}".format(stats.escrow_refunded) }}
+          </div>
+          <small style="color:rgba(255,255,255,0.7);">Dispute arbitrations</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row (Chart.js) -->
+    <div class="grid-2" style="margin-bottom:3rem;">
+      <div class="card">
+        <h3 style="font-size:1.25rem; color:var(--c-navy); margin-bottom:1.5rem;">Project Status Breakdown</h3>
+        <div style="height:250px; position:relative;">
+          <canvas id="projectStatusChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:1.25rem; color:var(--c-navy); margin-bottom:1.5rem;">Mock Escrow Volume Allocation</h3>
+        <div style="height:250px; position:relative;">
+          <canvas id="escrowFlowChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dispute Mediation Center (Prompt 25) -->
+    <div class="card" style="margin-bottom:3rem;" id="disputes-section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <div>
+          <h3 style="font-size:1.4rem; color:var(--c-navy); margin:0;">Dispute Resolution Center ({{ disputes|length }})</h3>
+          <p style="font-size:0.92rem; color:var(--c-muted); margin:0;">Admin powers to arbitrate mock escrow, adjust deadlines, or resolve project conflicts.</p>
+        </div>
+      </div>
+
+      {% if disputes %}
+        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+          {% for d in disputes %}
+            <div style="border:1.5px solid {% if d.status == 'Open' %}#EF4444{% else %}var(--c-border){% endif %}; border-radius:16px; padding:1.75rem; background:{% if d.status == 'Open' %}rgba(239,68,68,0.02){% else %}var(--c-white){% endif %};">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                <div>
+                  <span class="badge-status {% if d.status == 'Open' %}deadline-overdue{% else %}deadline-completed{% endif %}">
+                    {{ d.status.upper() }}
+                  </span>
+                  <h4 style="font-size:1.25rem; color:var(--c-navy); margin:0.4rem 0 0.2rem 0;">
+                    Dispute: {{ d.reason }}
+                  </h4>
+                  <div style="font-size:0.9rem; color:var(--c-muted);">
+                    Project: <a href="{{ url_for('project_detail', project_id=d.project_id) }}" style="font-weight:700; color:var(--c-teal);">{{ d.project.title }}</a> • Raised by: <strong>{{ d.raised_by.username }}</strong>
+                  </div>
+                </div>
+
+                <div style="text-align:right;">
+                  <span style="font-size:0.8rem; color:var(--c-muted); display:block;">Disputed Escrow</span>
+                  <strong style="font-size:1.4rem; color:var(--c-navy);">₹{{ "{:,}".format(d.project.budget) }}</strong>
+                </div>
+              </div>
+
+              <p style="background:var(--c-cream); padding:1rem; border-radius:10px; font-size:0.95rem; color:var(--c-dark); margin-bottom:1rem;">
+                <strong>Explanation:</strong> {{ d.description }}
+                {% if d.evidence %}
+                  <br><strong>Evidence link:</strong> <a href="{{ d.evidence }}" target="_blank" style="color:var(--c-teal);">{{ d.evidence }}</a>
+                {% endif %}
+              </p>
+
+              {% if d.admin_decision %}
+                <div style="margin-bottom:1rem; font-size:0.92rem; color:var(--c-teal); font-weight:600;">
+                  ✓ Resolution Decision: {{ d.admin_decision }}
+                </div>
+              {% endif %}
+
+              <!-- Admin Action Buttons (Prompt 25: Refund Client, Release Payment, Extend Deadline, Mark Completed) -->
+              {% if d.status != 'Resolved' %}
+                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; border-top:1px solid var(--c-border); padding-top:1rem;">
+                  <form method="POST" action="{{ url_for('admin_resolve_dispute', dispute_id=d.id) }}">
+                    <input type="hidden" name="action_type" value="refund_client">
+                    <button type="submit" class="btn btn-sm btn-outline" style="color:#B91C1C; border-color:#B91C1C;">
+                      💸 Refund Client
+                    </button>
+                  </form>
+
+                  <form method="POST" action="{{ url_for('admin_resolve_dispute', dispute_id=d.id) }}">
+                    <input type="hidden" name="action_type" value="release_payment">
+                    <button type="submit" class="btn btn-sm btn-teal">
+                      💰 Release Payment to Student
+                    </button>
+                  </form>
+
+                  <form method="POST" action="{{ url_for('admin_resolve_dispute', dispute_id=d.id) }}">
+                    <input type="hidden" name="action_type" value="extend_deadline">
+                    <button type="submit" class="btn btn-sm btn-outline">
+                      ⏱️ Extend Deadline (+7 Days)
+                    </button>
+                  </form>
+
+                  <form method="POST" action="{{ url_for('admin_resolve_dispute', dispute_id=d.id) }}">
+                    <input type="hidden" name="action_type" value="mark_completed">
+                    <button type="submit" class="btn btn-sm btn-navy">
+                      ✓ Mark Project Completed
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color:var(--c-muted); text-align:center; padding:2rem;">No open disputes. The marketplace is running smoothly!</p>
+      {% endif %}
+    </div>
+
+    <!-- Student Verification Queue -->
+    <div class="card" style="margin-bottom:3rem;">
+      <h3 style="font-size:1.4rem; color:var(--c-navy); margin-bottom:1.25rem;">
+        Student College Email Verification Queue
+      </h3>
+
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>College</th>
+              <th>College Email</th>
+              <th>Branch</th>
+              <th>Verification Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in all_students %}
+              <tr>
+                <td><strong>{{ s.full_name }}</strong></td>
+                <td>{{ s.college_name }}</td>
+                <td>{{ s.college_email }}</td>
+                <td>{{ s.branch }}</td>
+                <td>
+                  {% if s.is_verified %}
+                    <span class="badge-status deadline-completed">🎓 Verified</span>
+                  {% else %}
+                    <span class="badge-status deadline-approaching">Pending Approval</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if not s.is_verified %}
+                    <form method="POST" action="{{ url_for('admin_verify_student', student_id=s.id) }}" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-teal">
+                        Approve College ID
+                      </button>
+                    </form>
+                  {% else %}
+                    <span style="font-size:0.85rem; color:var(--c-muted);">Verified ✓</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Project Status Donut Chart
+  const statusCtx = document.getElementById('projectStatusChart');
+  if (statusCtx) {
+    new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Completed', 'Active/Assigned', 'Submitted', 'Overdue', 'Disputed'],
+        datasets: [{
+          data: [
+            {{ stats.completed_projects }},
+            {{ stats.active_projects }},
+            {{ stats.submitted_projects }},
+            {{ stats.overdue_projects }},
+            {{ stats.disputed_projects }}
+          ],
+          backgroundColor: ['#0F766E', '#172554', '#E0B75A', '#EF4444', '#B45309'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  // 2. Mock Escrow Flow Bar Chart
+  const escrowCtx = document.getElementById('escrowFlowChart');
+  if (escrowCtx) {
+    new Chart(escrowCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Held in Escrow', 'Released to Students', 'Refunded'],
+        datasets: [{
+          label: 'Amount (₹)',
+          data: [
+            {{ stats.escrow_held }},
+            {{ stats.escrow_released }},
+            {{ stats.escrow_refunded }}
+          ],
+          backgroundColor: ['#E0B75A', '#0F766E', '#B45309'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

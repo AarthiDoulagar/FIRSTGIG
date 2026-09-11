@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}My Projects — FirstGig{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3.5rem; padding-bottom:5rem;">
+  <div class="container">
+    <div style="margin-bottom:2.5rem;">
+      <span class="section-tag">Workspace</span>
+      <h1 style="font-size:2.4rem; color:var(--c-navy); margin:0.3rem 0;">Projects</h1>
+      <p style="font-size:1.05rem; color:var(--c-muted); margin:0;">
+        Track ongoing deliverables, milestones, deadlines, and simulated escrow payouts.
+      </p>
+    </div>
+
+    <!-- Project Cards Grid -->
+    {% if projects %}
+      <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        {% for p in projects %}
+          <div class="card" style="padding:1.75rem 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+              <div>
+                <span class="badge-status {{ p.deadline_ui_status.css_class }}" style="margin-bottom:0.5rem;">
+                  {{ p.deadline_ui_status.badge }}
+                </span>
+                <h3 style="font-size:1.45rem; color:var(--c-navy); margin:0.25rem 0;">
+                  <a href="{{ url_for('project_detail', project_id=p.id) }}" style="color:inherit;">
+                    {{ p.title }}
+                  </a>
+                </h3>
+                <div style="font-size:0.92rem; color:var(--c-muted);">
+                  {% if current_user.role == 'student' %}
+                    Client: <strong>{{ p.client.company_name }}</strong>
+                  {% else %}
+                    Student: <strong>{{ p.student.full_name }}</strong> ({{ p.student.career_level_info.badge }})
+                  {% endif %}
+                  • Deadline: {{ p.deadline_date.strftime('%d %b %Y') }}
+                </div>
+              </div>
+
+              <div style="text-align:right;">
+                <span style="font-size:0.8rem; color:var(--c-muted); display:block;">Mock Escrow</span>
+                <span class="gig-budget-tag" style="font-size:1.6rem; color:var(--c-navy);">₹{{ "{:,}".format(p.budget) }}</span>
+                <div style="font-size:0.82rem; font-weight:700; color:var(--c-teal);">{{ p.escrow_status }}</div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--c-border); padding-top:1rem; flex-wrap:wrap; gap:1rem;">
+              <div style="display:flex; align-items:center; gap:1.5rem; font-size:0.9rem; color:var(--c-muted);">
+                <span>Status: <strong style="color:var(--c-navy);">{{ p.status }}</strong></span>
+                <span>Milestones: <strong>{{ p.milestones|length }}</strong></span>
+                <span>{{ p.deadline_ui_status.label }}</span>
+              </div>
+
+              <a href="{{ url_for('project_detail', project_id=p.id) }}" class="btn btn-sm btn-teal">
+                Open Workspace →
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align:center; padding:4rem 2rem;">
+        <div style="font-size:3rem; margin-bottom:1rem;">📂</div>
+        <h3>No projects found</h3>
+        <p>You do not have any active or completed projects yet.</p>
+        <div style="margin-top:1.5rem;">
+          {% if current_user and current_user.role == 'student' %}
+            <a href="{{ url_for('gigs') }}" class="btn btn-teal">Find Gigs to Apply</a>
+          {% else %}
+            <a href="{{ url_for('post_gig') }}" class="btn btn-teal">Post a Gig</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

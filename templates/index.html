@@ -1,0 +1,651 @@
+{% extends "base.html" %}
+
+{% block title %}FirstGig — Your First Gig. Your First Reputation. Your Freelance Career.{% endblock %}
+
+{% block content %}
+<!-- ==========================================================================
+     1. HERO SECTION (With Opening Animation)
+     ========================================================================== -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-card">
+      <!-- Tag Pill -->
+      <div class="hero-label-pill">
+        <span>⚡</span> STUDENT FREELANCING, REIMAGINED
+      </div>
+
+      <!-- Main Heading with 1-Second Opening Animation -->
+      <h1 class="hero-title brand-opening-animated" id="hero-heading">
+        Your First Gig.<br>
+        Your First Reputation.<br>
+        <span class="gold-text">Your Freelance Career.</span>
+      </h1>
+
+      <!-- Subheading -->
+      <p class="hero-subtext">
+        Start with small projects, build verified experience, and unlock better freelance opportunities.
+        No prior commercial experience required — start with your college skills.
+      </p>
+
+      <!-- Action Buttons (Real working links) -->
+      <div class="hero-actions">
+        <a href="{{ url_for('gigs') }}" class="btn btn-lg btn-gold">
+          🔍 Find Your First Gig
+        </a>
+        <a href="{{ url_for('post_gig') if current_user and current_user.role == 'client' else url_for('register', role='client') }}" class="btn btn-lg btn-outline-white">
+          💼 Post a Gig
+        </a>
+      </div>
+
+      <!-- Visual Career Progression Banner -->
+      <div class="hero-career-strip">
+        <div class="hero-career-label">Continuous Verified Student Progression:</div>
+        <div class="hero-career-steps">
+          <div class="hero-tier-chip">🟢 FirstGig Beginner</div>
+          <span class="hero-tier-arrow">→</span>
+          <div class="hero-tier-chip">🔵 Active Freelancer</div>
+          <span class="hero-tier-arrow">→</span>
+          <div class="hero-tier-chip">🟣 Rising Freelancer</div>
+          <span class="hero-tier-arrow">→</span>
+          <div class="hero-tier-chip active-highlight">⭐ Verified Freelancer</div>
+          <span class="hero-tier-arrow">→</span>
+          <div class="hero-tier-chip">🏆 Trusted Freelancer</div>
+          <span class="hero-tier-arrow">→</span>
+          <div class="hero-tier-chip">🚀 Pro Student</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     2. WHY FIRSTGIG SECTION
+     ========================================================================== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Platform Foundation</span>
+      <h2 class="section-title">Why FirstGig?</h2>
+      <p class="section-subtitle">
+        Traditional freelancing websites demand years of past client reviews.
+        FirstGig provides students a safe, verified gateway to start earning and building real trust.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <!-- Feature 1: Verified Students -->
+      <div class="card why-card">
+        <div class="why-icon-bubble">🎓</div>
+        <h3>Verified Students</h3>
+        <p>Students verify their genuine college email and institutional identity, giving businesses instant confidence in talent credibility.</p>
+      </div>
+
+      <!-- Feature 2: Protected Mock Escrow -->
+      <div class="card why-card">
+        <div class="why-icon-bubble">🛡️</div>
+        <h3>Protected Mock Escrow</h3>
+        <p>Simulated payment protection guarantees that student work is funded upfront before project kickoff, protecting both parties.</p>
+      </div>
+
+      <!-- Feature 3: Genuine Reviews -->
+      <div class="card why-card">
+        <div class="why-icon-bubble">⭐</div>
+        <h3>Genuine Reviews</h3>
+        <p>Reviews only become available after successfully completed and client-approved projects. Fake testimonials are completely blocked.</p>
+      </div>
+
+      <!-- Feature 4: Career Progression -->
+      <div class="card why-card">
+        <div class="why-icon-bubble">📈</div>
+        <h3>Career Progression</h3>
+        <p>Students level up tier-by-tier through real completed gigs, automatically transforming collegiate skills into senior badges.</p>
+      </div>
+
+      <!-- Feature 5: Automatic Portfolio -->
+      <div class="card why-card">
+        <div class="why-icon-bubble">📁</div>
+        <h3>Automatic Portfolio</h3>
+        <p>Every completed project seamlessly converts into an authenticated, verified portfolio item ready to share with employers.</p>
+      </div>
+
+      <!-- Feature 6: Better Opportunities -->
+      <div class="card why-card">
+        <div class="why-icon-bubble">🚀</div>
+        <h3>Better Opportunities</h3>
+        <p>As verified project experience grows, our rule-based matching engine recommends higher-budget, higher-impact projects.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     3. THE IDEA SECTION (USP)
+     ========================================================================== -->
+<section class="section" style="background-color: #F1ECE1;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">The Philosophy</span>
+      <h2 class="section-title">The Idea Behind FirstGig</h2>
+      <p class="section-subtitle">Breaking the eternal chicken-and-egg dilemma of student freelancing.</p>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-breakdown-row">
+        <!-- The Problem -->
+        <div class="idea-problem-box">
+          <div class="idea-problem-title">
+            <span>✕</span> The Cold-Start Trap
+          </div>
+          <div class="idea-problem-flow">
+            <div class="idea-problem-step">
+              <span>🚫</span> No Reviews
+            </div>
+            <div style="text-align:center; color:#B91C1C; font-weight:800;">↓</div>
+            <div class="idea-problem-step">
+              <span>🚫</span> No Client Trust
+            </div>
+            <div style="text-align:center; color:#B91C1C; font-weight:800;">↓</div>
+            <div class="idea-problem-step">
+              <span>🚫</span> No First Gig
+            </div>
+          </div>
+          <p style="margin-top:1.2rem; font-size:0.92rem; color:#7F1D1D;">
+            On existing platforms, beginners compete against 10-year professionals with hundreds of ratings, leaving students ignored.
+          </p>
+        </div>
+
+        <!-- The Solution -->
+        <div class="idea-solution-box">
+          <div class="idea-solution-title">
+            <span>✓</span> The FirstGig Breakthrough
+          </div>
+          <div class="idea-solution-flow">
+            <div class="idea-solution-step">
+              <span>1️⃣</span> Start Small with Micro-Projects
+            </div>
+            <div style="text-align:center; color:var(--c-teal); font-weight:800;">↓</div>
+            <div class="idea-solution-step">
+              <span>2️⃣</span> Complete Real Projects & Milestones
+            </div>
+            <div style="text-align:center; color:var(--c-teal); font-weight:800;">↓</div>
+            <div class="idea-solution-step">
+              <span>3️⃣</span> Build Verified Institutional Reputation
+            </div>
+            <div style="text-align:center; color:var(--c-teal); font-weight:800;">↓</div>
+            <div class="idea-solution-step">
+              <span>4️⃣</span> Unlock Higher-Tier Budget Projects
+            </div>
+            <div style="text-align:center; color:var(--c-teal); font-weight:800;">↓</div>
+            <div class="idea-solution-step gold-highlight">
+              <span>⭐</span> Become a Trusted Freelancer
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manifesto Quote -->
+      <div class="idea-manifesto-quote">
+        <p>
+          "FirstGig doesn't just help students find their first gig.<br>
+          It turns their first gigs into a verified freelance career."
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     4. HOW IT WORKS (Vertical Timeline)
+     ========================================================================== -->
+<section class="section" id="how-it-works-preview">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Step-by-Step Workflow</span>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">A transparent, structured lifecycle designed for student safety and client satisfaction.</p>
+    </div>
+
+    <!-- Switcher Pills -->
+    <div class="timeline-toggle-wrapper">
+      <div class="timeline-nav-pills">
+        <button type="button" class="timeline-pill-btn active" id="timeline-student-btn">For Students</button>
+        <button type="button" class="timeline-pill-btn" id="timeline-client-btn">For Clients</button>
+      </div>
+    </div>
+
+    <!-- Student Timeline (01 to 07) -->
+    <div class="vertical-step-list" id="timeline-student-list">
+      <div class="step-card">
+        <div class="step-number-circle">01</div>
+        <div class="step-card-content">
+          <h4>Create Profile</h4>
+          <p>Highlight your academic degree, technical skills, interests, and GitHub or design links.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">02</div>
+        <div class="step-card-content">
+          <h4>Verify College Email</h4>
+          <p>Receive your instant 🎓 Verified Student badge to immediately distinguish yourself from unverified candidates.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">03</div>
+        <div class="step-card-content">
+          <h4>Find First Gig</h4>
+          <p>Browse starter-friendly micro-projects tagged specifically for college talent and submit simple proposals.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">04</div>
+        <div class="step-card-content">
+          <h4>Complete Project & Milestones</h4>
+          <p>Track deadlines with visual indicators and submit deliverables through the workspace.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">05</div>
+        <div class="step-card-content">
+          <h4>Receive Verified Review</h4>
+          <p>Clients approve work, mock escrow payment is simulated, and a genuine review is locked into your profile.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">06</div>
+        <div class="step-card-content">
+          <h4>Build Reputation</h4>
+          <p>Your reliability score, on-time percentage, and career level advance automatically in the database.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">07</div>
+        <div class="step-card-content">
+          <h4>Unlock Better Projects</h4>
+          <p>Progress to Rising and Verified tiers to receive personalized, higher-budget gig recommendations.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Timeline (01 to 07) -->
+    <div class="vertical-step-list" id="timeline-client-list" style="display:none;">
+      <div class="step-card">
+        <div class="step-number-circle">01</div>
+        <div class="step-card-content">
+          <h4>Post a Gig</h4>
+          <p>Define your deliverables, deadline, category, and budget in Indian Rupees (₹).</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">02</div>
+        <div class="step-card-content">
+          <h4>Review Student Profiles</h4>
+          <p>Inspect college credentials, verified career tiers, reliability percentages, and genuine past reviews.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">03</div>
+        <div class="step-card-content">
+          <h4>Select Best Student</h4>
+          <p>Accept an applicant's proposal with one click to initiate the dedicated project workspace.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">04</div>
+        <div class="step-card-content">
+          <h4>Use Mock Escrow</h4>
+          <p>Simulated funds are safely locked in escrow so the student knows payment is secured upon completion.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">05</div>
+        <div class="step-card-content">
+          <h4>Track Project Progress</h4>
+          <p>Monitor real-time milestone completions and deadline countdowns.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">06</div>
+        <div class="step-card-content">
+          <h4>Approve Work</h4>
+          <p>Review the student's submission, request adjustments if needed, or approve to release simulated escrow.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number-circle">07</div>
+        <div class="step-card-content">
+          <h4>Review Student</h4>
+          <p>Leave a 5-star rating and testimonial that cements the student's verified track record.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     5. CAREER PROGRESSION SECTION
+     ========================================================================== -->
+<section class="section" style="background-color:#F1ECE1;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Tier System</span>
+      <h2 class="section-title">Automated Career Progression</h2>
+      <p class="section-subtitle">
+        Every completed gig mathematically advances your freelancer tier in the database.
+      </p>
+    </div>
+
+    <div class="career-meter-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <span style="font-size:0.9rem; font-weight:700; color:var(--c-muted); text-transform:uppercase;">Example Active Progress:</span>
+          <h3 style="font-size:1.6rem; color:var(--c-navy); margin-top:0.2rem;">
+            ⭐ Verified Freelancer
+          </h3>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:1.1rem; font-weight:800; color:var(--c-teal);">7 / 10 Gigs Completed</span>
+          <div style="font-size:0.85rem; color:var(--c-muted);">3 more gigs to reach 🏆 Trusted Freelancer</div>
+        </div>
+      </div>
+
+      <!-- Live progress bar -->
+      <div class="career-progress-bar-container">
+        <div class="career-progress-bar-fill" style="width: 70%;"></div>
+      </div>
+
+      <!-- Tier Grid -->
+      <div class="tier-list-grid">
+        <div class="tier-item-box">
+          <div class="tier-item-gigs">0 Gigs</div>
+          <div class="tier-item-icon">🟢</div>
+          <div class="tier-item-name">Beginner</div>
+        </div>
+
+        <div class="tier-item-box">
+          <div class="tier-item-gigs">1–2 Gigs</div>
+          <div class="tier-item-icon">🔵</div>
+          <div class="tier-item-name">Active</div>
+        </div>
+
+        <div class="tier-item-box">
+          <div class="tier-item-gigs">3–4 Gigs</div>
+          <div class="tier-item-icon">🟣</div>
+          <div class="tier-item-name">Rising</div>
+        </div>
+
+        <div class="tier-item-box current-tier">
+          <div class="tier-item-gigs" style="color:#92400E;">5–9 Gigs</div>
+          <div class="tier-item-icon">⭐</div>
+          <div class="tier-item-name" style="color:#92400E;">Verified</div>
+        </div>
+
+        <div class="tier-item-box">
+          <div class="tier-item-gigs">10–19 Gigs</div>
+          <div class="tier-item-icon">🏆</div>
+          <div class="tier-item-name">Trusted</div>
+        </div>
+
+        <div class="tier-item-box">
+          <div class="tier-item-gigs">20+ Gigs</div>
+          <div class="tier-item-icon">🚀</div>
+          <div class="tier-item-name">Pro Student</div>
+        </div>
+      </div>
+
+      <div style="text-align:center; padding-top:1rem;">
+        <a href="{{ url_for('gigs') }}" class="btn btn-teal">Start Advancing Your Tier Now</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     6. RECOMMENDED OPPORTUNITIES (Rule-Based Matching)
+     ========================================================================== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Algorithmic Guidance</span>
+      <h2 class="section-title">🎯 Recommended For You</h2>
+      <p class="section-subtitle">
+        Rule-based matching pairing your verified skills, branch interests, and career tier to the perfect gig.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      {% for gig in recommended_gigs %}
+        <div class="gig-card">
+          <div>
+            <!-- Match Pill & Category -->
+            <div class="gig-card-top">
+              <span class="gig-category-badge">{{ gig.category }}</span>
+              <span class="match-badge-pill">
+                🎯 {{ gig.match_info.match_pct if gig.match_info else 92 }}% Match
+              </span>
+            </div>
+
+            <!-- Rule-based Match Explanation -->
+            <div class="recommendation-banner">
+              💡 {{ gig.match_info.reason if gig.match_info else "Matches your Python + Flask skills and your Web Development interest." }}
+            </div>
+
+            <h3 class="gig-title">{{ gig.title }}</h3>
+            <p class="gig-desc">{{ gig.description }}</p>
+
+            <div class="gig-meta-row">
+              <div class="gig-meta-item">
+                <span>⏱️</span> {{ gig.deadline_days }} days
+              </div>
+              <div class="gig-meta-item">
+                <span>📊</span> {{ gig.difficulty }}
+              </div>
+            </div>
+
+            <div class="gig-skills-row">
+              {% for skill in gig.skills %}
+                <span class="skill-pill">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="gig-card-footer">
+            <div>
+              <span style="font-size:0.8rem; color:var(--c-muted); display:block;">Budget</span>
+              <span class="gig-budget-tag">₹{{ "{:,}".format(gig.budget) }}</span>
+            </div>
+            <a href="{{ url_for('gig_detail', gig_id=gig.id) }}" class="btn btn-sm btn-teal">
+              Apply Now
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     7. FEATURED GIGS MARKETPLACE PREVIEW
+     ========================================================================== -->
+<section class="section" style="background-color:#F1ECE1;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Open Marketplace</span>
+      <h2 class="section-title">Featured Gigs</h2>
+      <p class="section-subtitle">Explore live opportunities posted by real verified clients and businesses.</p>
+    </div>
+
+    <div class="grid-3">
+      {% for gig in featured_gigs %}
+        <div class="gig-card">
+          <div>
+            <div class="gig-card-top">
+              <span class="gig-category-badge">{{ gig.category }}</span>
+              <span class="badge-status deadline-plenty">{{ gig.difficulty }}</span>
+            </div>
+
+            <h3 class="gig-title">{{ gig.title }}</h3>
+            <p class="gig-desc">{{ gig.description }}</p>
+
+            <div class="gig-meta-row">
+              <div class="gig-meta-item">
+                <span>⏱️</span> {{ gig.deadline_days }} Days
+              </div>
+              <div class="gig-meta-item">
+                <span>🏢</span> {{ gig.client.company_name if gig.client else "Apex Studio" }}
+              </div>
+            </div>
+
+            <div class="gig-skills-row">
+              {% for skill in gig.skills %}
+                <span class="skill-pill">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="gig-card-footer">
+            <div>
+              <span style="font-size:0.8rem; color:var(--c-muted); display:block;">Fixed Budget</span>
+              <span class="gig-budget-tag">₹{{ "{:,}".format(gig.budget) }}</span>
+            </div>
+            <a href="{{ url_for('gig_detail', gig_id=gig.id) }}" class="btn btn-sm btn-teal">
+              Apply
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center; margin-top:3rem;">
+      <a href="{{ url_for('gigs') }}" class="btn btn-lg btn-navy">
+        View All Marketplace Gigs ({{ total_gigs_count }}+) →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     8. REVIEWS & TRUST SECTION
+     ========================================================================== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Verified Proof</span>
+      <h2 class="section-title">Real Reviews from Real Deliverables</h2>
+      <p class="section-subtitle">
+        Reviews only populate on FirstGig after projects are 100% completed and client-approved.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      {% for review in featured_reviews %}
+        <div class="review-card">
+          <div class="review-card-header">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div class="user-avatar-sm" style="background:var(--c-navy);">
+                {{ review.reviewer.username[:1].upper() if review.reviewer else 'C' }}
+              </div>
+              <div>
+                <h4 style="font-size:1.05rem; margin:0; color:var(--c-navy);">{{ review.reviewer.username if review.reviewer else "Vikram Verma" }}</h4>
+                <span style="font-size:0.8rem; color:var(--c-muted);">Client • Verified Hirer</span>
+              </div>
+            </div>
+            <span class="review-verified-badge">✓ Verified FirstGig Project</span>
+          </div>
+
+          <div style="color:var(--c-gold); margin-bottom:0.75rem; font-size:1.1rem;">
+            {% for _ in range(review.rating) %}★{% endfor %}
+          </div>
+
+          <p style="font-size:0.96rem; color:var(--c-dark); font-style:italic; margin-bottom:1rem;">
+            "{{ review.comment }}"
+          </p>
+
+          <div style="font-size:0.82rem; color:var(--c-muted); border-top:1px solid var(--c-border); padding-top:0.75rem;">
+            Project: <strong>{{ review.project.title if review.project else "E-Commerce Landing Page" }}</strong>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     9. PORTFOLIO SHOWCASE
+     ========================================================================== -->
+<section class="section" style="background-color:#F1ECE1;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Showcase</span>
+      <h2 class="section-title">Student Portfolio Showcase</h2>
+      <p class="section-subtitle">
+        Verified FirstGig deliverables turned into stunning public showcase items.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      {% for item in featured_portfolio %}
+        <div class="portfolio-card">
+          <div class="portfolio-img-box">
+            <span>💻</span>
+          </div>
+          <div class="portfolio-body">
+            <span class="review-verified-badge" style="margin-bottom:0.75rem;">✓ Verified FirstGig Project</span>
+            <h3 style="font-size:1.25rem; color:var(--c-navy); margin-bottom:0.5rem;">{{ item.title }}</h3>
+            <p style="font-size:0.92rem; color:var(--c-muted); margin-bottom:1rem;">{{ item.description }}</p>
+
+            <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem;">
+              {% for s in item.skills_used.split(',') %}
+                <span class="skill-pill">{{ s.strip() }}</span>
+              {% endfor %}
+            </div>
+
+            <div style="font-size:0.85rem; color:var(--c-muted);">
+              Completed: <strong>{{ item.completion_date }}</strong>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center; margin-top:3rem;">
+      <a href="{{ url_for('portfolio') }}" class="btn btn-outline">Explore Full Student Portfolio Gallery →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     10. CALL TO ACTION (CTA)
+     ========================================================================== -->
+<section class="section">
+  <div class="container">
+    <div class="cta-card">
+      <h2 style="font-size:clamp(2.2rem, 4vw, 3.2rem);">
+        Ready to Launch Your Freelance Career?
+      </h2>
+      <p>
+        Whether you are a college student looking for your very first project or a client looking for motivated, verified talent — FirstGig is built for you.
+      </p>
+      <div style="display:flex; justify-content:center; gap:1.25rem; flex-wrap:wrap;">
+        <a href="{{ url_for('register', role='student') }}" class="btn btn-lg btn-gold">
+          🎓 Register as Student
+        </a>
+        <a href="{{ url_for('register', role='client') }}" class="btn btn-lg btn-outline-white">
+          💼 Hire Student Talent
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

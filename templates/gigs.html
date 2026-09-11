@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Find Gigs — FirstGig Marketplace{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 3rem;">
+  <div class="container">
+    <!-- Header & Search -->
+    <div style="margin-bottom: 2.5rem;">
+      <span class="section-tag">Marketplace</span>
+      <h1 style="font-size:clamp(2.2rem, 4vw, 3.2rem); margin-bottom: 0.75rem;">Find Your Next Opportunity</h1>
+      <p style="font-size:1.15rem; color:var(--c-muted); max-width:700px;">
+        Browse starter projects and verified gigs suited for college students. Start small, build verified experience, and level up.
+      </p>
+
+      <!-- Search & Filter Form (Pure Flask GET query params) -->
+      <form method="GET" action="{{ url_for('gigs') }}" class="card" style="margin-top:2rem; padding:1.75rem;">
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+          <div style="flex:2; min-width:280px;">
+            <label class="form-label" for="q">Keyword Search</label>
+            <input type="text" id="q" name="q" value="{{ search_query }}" placeholder="Search by title, technology, or description..." class="form-control">
+          </div>
+          <div style="flex:1; min-width:180px;">
+            <label class="form-label" for="category">Category</label>
+            <select id="category" name="category" class="form-control">
+              <option value="">All Categories</option>
+              {% for cat in all_categories %}
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="flex:1; min-width:150px;">
+            <label class="form-label" for="difficulty">Difficulty</label>
+            <select id="difficulty" name="difficulty" class="form-control">
+              <option value="">All Difficulties</option>
+              <option value="Beginner" {% if selected_difficulty == 'Beginner' %}selected{% endif %}>🟢 Beginner</option>
+              <option value="Medium" {% if selected_difficulty == 'Medium' %}selected{% endif %}>🟡 Medium</option>
+              <option value="Advanced" {% if selected_difficulty == 'Advanced' %}selected{% endif %}>🟣 Advanced</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:1.5rem; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+          <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap;">
+            <div>
+              <label class="form-label" for="max_budget" style="margin-bottom:0.25rem;">Max Budget (₹)</label>
+              <input type="number" id="max_budget" name="max_budget" value="{{ max_budget or '' }}" placeholder="e.g. 10000" class="form-control" style="width:160px;">
+            </div>
+            <div>
+              <label class="form-label" for="skill" style="margin-bottom:0.25rem;">Skill Tag</label>
+              <input type="text" id="skill" name="skill" value="{{ selected_skill or '' }}" placeholder="e.g. Python, CSS" class="form-control" style="width:160px;">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; align-items:center; margin-top:1rem;">
+            <a href="{{ url_for('gigs') }}" class="btn btn-sm btn-outline">Clear Filters</a>
+            <button type="submit" class="btn btn-sm btn-teal">Apply Filters</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Active Filter Tags & Count -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+      <span style="font-weight:700; color:var(--c-navy);">
+        Showing {{ gigs|length }} Open Gigs
+      </span>
+      {% if current_user and current_user.role == 'student' %}
+        <div style="font-size:0.9rem; color:var(--c-muted);">
+          Your Tier: <span style="font-weight:700; color:var(--c-teal);">{{ current_user.student_profile.career_level_info.badge }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Gigs Grid -->
+    {% if gigs %}
+      <div class="grid-3">
+        {% for gig in gigs %}
+          <div class="gig-card">
+            <div>
+              <div class="gig-card-top">
+                <span class="gig-category-badge">{{ gig.category }}</span>
+                <span class="badge-status {% if gig.difficulty == 'Beginner' %}deadline-plenty{% elif gig.difficulty == 'Medium' %}deadline-approaching{% else %}deadline-overdue{% endif %}">
+                  {{ gig.difficulty }}
+                </span>
+              </div>
+
+              <h3 class="gig-title">
+                <a href="{{ url_for('gig_detail', gig_id=gig.id) }}" style="color:inherit;">
+                  {{ gig.title }}
+                </a>
+              </h3>
+
+              <p class="gig-desc">{{ gig.description }}</p>
+
+              <div class="gig-meta-row">
+                <div class="gig-meta-item">
+                  <span>⏱️</span> {{ gig.deadline_days }} Days
+                </div>
+                <div class="gig-meta-item">
+                  <span>🏢</span> {{ gig.client.company_name if gig.client else "Apex Studio" }}
+                </div>
+                <div class="gig-meta-item">
+                  <span>📅</span> {{ gig.created_at.strftime('%d %b %Y') }}
+                </div>
+              </div>
+
+              <div class="gig-skills-row">
+                {% for s in gig.skills %}
+                  <span class="skill-pill">{{ s }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="gig-card-footer">
+              <div>
+                <span style="font-size:0.8rem; color:var(--c-muted); display:block;">Budget</span>
+                <span class="gig-budget-tag">₹{{ "{:,}".format(gig.budget) }}</span>
+              </div>
+              <a href="{{ url_for('gig_detail', gig_id=gig.id) }}" class="btn btn-sm btn-teal">
+                Apply Now
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align:center; padding:4rem 2rem;">
+        <div style="font-size:3rem; margin-bottom:1rem;">🔍</div>
+        <h3>No gigs found matching your filters</h3>
+        <p>Try clearing your search terms or lowering filter criteria.</p>
+        <div style="margin-top:1.5rem;">
+          <a href="{{ url_for('gigs') }}" class="btn btn-teal">Reset All Filters</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

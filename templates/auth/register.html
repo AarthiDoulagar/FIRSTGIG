@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — FirstGig{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3.5rem; padding-bottom:5rem;">
+  <div class="container container-narrow" style="max-width:640px;">
+    <div class="card" style="padding:2.5rem;">
+      <div style="text-align:center; margin-bottom:2rem;">
+        <span class="section-tag">Join FirstGig</span>
+        <h1 style="font-size:2.2rem; color:var(--c-navy); margin-top:0.4rem; margin-bottom:0.5rem;">Create Your Account</h1>
+        <p style="font-size:0.95rem; color:var(--c-muted);">Select your account type to get started with verified freelancing.</p>
+      </div>
+
+      <!-- Registration Form with Dynamic Role Tabs -->
+      <form method="POST" action="{{ url_for('register') }}">
+        <!-- Role Selection -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
+          <label style="cursor:pointer;">
+            <input type="radio" name="role" value="student" id="role-student" {% if not request.args.get('role') or request.args.get('role') == 'student' %}checked{% endif %} style="display:none;" onchange="toggleRoleFields('student')">
+            <div id="role-card-student" class="card" style="padding:1.25rem; text-align:center; border:2px solid var(--c-teal); background:rgba(15,118,110,0.06);">
+              <div style="font-size:1.8rem; margin-bottom:0.3rem;">🎓</div>
+              <div style="font-weight:700; color:var(--c-navy);">I'm a Student</div>
+              <div style="font-size:0.8rem; color:var(--c-muted);">Looking for freelance gigs</div>
+            </div>
+          </label>
+
+          <label style="cursor:pointer;">
+            <input type="radio" name="role" value="client" id="role-client" {% if request.args.get('role') == 'client' %}checked{% endif %} style="display:none;" onchange="toggleRoleFields('client')">
+            <div id="role-card-client" class="card" style="padding:1.25rem; text-align:center; border:1px solid var(--c-border);">
+              <div style="font-size:1.8rem; margin-bottom:0.3rem;">🏢</div>
+              <div style="font-weight:700; color:var(--c-navy);">I'm a Client</div>
+              <div style="font-size:0.8rem; color:var(--c-muted);">Looking to hire students</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Common Fields -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-control" required placeholder="e.g. rahul_tech">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" required placeholder="name@college.edu">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="full_name">Full Name</label>
+          <input type="text" id="full_name" name="full_name" class="form-control" required placeholder="e.g. Rahul Sharma">
+        </div>
+
+        <!-- Student-Specific Fields -->
+        <div id="student-fields">
+          <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="college_name">College / University Name</label>
+              <input type="text" id="college_name" name="college_name" class="form-control" placeholder="e.g. Indian Institute of Technology">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="branch">Branch / Major</label>
+              <input type="text" id="branch" name="branch" class="form-control" placeholder="e.g. Computer Science">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="college_email">College Email (for verification)</label>
+              <input type="email" id="college_email" name="college_email" class="form-control" placeholder="rahul@college.edu">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="academic_year">Academic Year</label>
+              <select id="academic_year" name="academic_year" class="form-control">
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year" selected>3rd Year</option>
+                <option value="4th Year">4th Year</option>
+                <option value="Postgraduate">Postgraduate</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="skills">Skills (Comma-separated)</label>
+            <input type="text" id="skills" name="skills" class="form-control" placeholder="e.g. Python, Flask, HTML, CSS, React, Figma">
+          </div>
+        </div>
+
+        <!-- Client-Specific Fields -->
+        <div id="client-fields" style="display:none;">
+          <div class="form-group">
+            <label class="form-label" for="company_name">Company / Organization Name</label>
+            <input type="text" id="company_name" name="company_name" class="form-control" placeholder="e.g. Apex Digital Studio">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="industry">Industry</label>
+              <input type="text" id="industry" name="industry" class="form-control" placeholder="e.g. SaaS / Software">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="website">Website URL</label>
+              <input type="url" id="website" name="website" class="form-control" placeholder="https://company.com">
+            </div>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control" required placeholder="Minimum 6 characters">
+        </div>
+
+        <button type="submit" class="btn btn-teal" style="width:100%; margin-top:1rem;">
+          Complete Registration
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--c-border); font-size:0.95rem; color:var(--c-muted);">
+        Already have an account?
+        <a href="{{ url_for('login') }}" style="color:var(--c-teal); font-weight:700;">Sign In</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+function toggleRoleFields(role) {
+  const studentFields = document.getElementById('student-fields');
+  const clientFields = document.getElementById('client-fields');
+  const cardStudent = document.getElementById('role-card-student');
+  const cardClient = document.getElementById('role-card-client');
+
+  if (role === 'student') {
+    studentFields.style.display = 'block';
+    clientFields.style.display = 'none';
+    cardStudent.style.borderColor = 'var(--c-teal)';
+    cardStudent.style.background = 'rgba(15,118,110,0.06)';
+    cardClient.style.borderColor = 'var(--c-border)';
+    cardClient.style.background = 'var(--c-white)';
+  } else {
+    studentFields.style.display = 'none';
+    clientFields.style.display = 'block';
+    cardClient.style.borderColor = 'var(--c-teal)';
+    cardClient.style.background = 'rgba(15,118,110,0.06)';
+    cardStudent.style.borderColor = 'var(--c-border)';
+    cardStudent.style.background = 'var(--c-white)';
+  }
+}
+
+// Initial check based on radio
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('role-client').checked) {
+    toggleRoleFields('client');
+  }
+});
+</script>
+{% endblock %}

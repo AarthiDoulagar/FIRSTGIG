@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Applications — FirstGig{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3.5rem; padding-bottom:5rem;">
+  <div class="container">
+    <div style="margin-bottom:2.5rem;">
+      <span class="section-tag">Proposals & Applications</span>
+      <h1 style="font-size:2.4rem; color:var(--c-navy); margin:0.3rem 0;">
+        {% if current_user.role == 'client' %}Candidate Applicant Review{% else %}My Submitted Proposals{% endif %}
+      </h1>
+      <p style="font-size:1.05rem; color:var(--c-muted); margin:0;">
+        {% if current_user.role == 'client' %}
+          Compare student credentials, career progression tiers, and verified track records.
+        {% else %}
+          Track the status of your proposals submitted to clients.
+        {% endif %}
+      </p>
+    </div>
+
+    {% if current_user.role == 'client' %}
+      <!-- CLIENT APPLICANT VIEW (Prompt 17) -->
+      {% if applications %}
+        <div style="display:flex; flex-direction:column; gap:2rem;">
+          {% for app in applications %}
+            <div class="card" style="padding:2.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem; margin-bottom:1.5rem;">
+                <div style="display:flex; align-items:center; gap:1.25rem;">
+                  <!-- Student Avatar -->
+                  <div style="width:68px; height:68px; border-radius:50%; background:var(--c-navy); color:var(--c-white); display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-family:var(--font-heading);">
+                    {{ app.student.full_name[:1].upper() }}
+                  </div>
+
+                  <div>
+                    <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                      <h3 style="font-size:1.4rem; color:var(--c-navy); margin:0;">
+                        {{ app.student.full_name }}
+                      </h3>
+                      {% if app.student.is_verified %}
+                        <span class="badge-status deadline-completed" style="font-size:0.75rem;">🎓 Verified Student</span>
+                      {% endif %}
+                      <span class="badge-status" style="background:rgba(224,183,90,0.2); color:#854D0E; font-size:0.8rem; font-weight:800;">
+                        {{ app.student.career_level_info.badge }}
+                      </span>
+                    </div>
+
+                    <div style="font-size:0.95rem; color:var(--c-muted); margin-top:0.25rem;">
+                      {{ app.student.college_name }} • {{ app.student.branch }} ({{ app.student.academic_year }})
+                    </div>
+                  </div>
+                </div>
+
+                <div style="text-align:right;">
+                  <span style="font-size:0.82rem; color:var(--c-muted); display:block;">Applied for Gig:</span>
+                  <a href="{{ url_for('gig_detail', gig_id=app.gig.id) }}" style="font-weight:700; color:var(--c-navy); font-size:1.1rem;">
+                    {{ app.gig.title }}
+                  </a>
+                  <div style="margin-top:0.3rem;">
+                    Bid: <strong>₹{{ "{:,}".format(app.bid_amount) }}</strong> in <strong>{{ app.estimated_days }} days</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reputation Comparison Grid (Prompt 17) -->
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; background:var(--c-cream); padding:1rem 1.25rem; border-radius:14px; margin-bottom:1.5rem;">
+                <div>
+                  <span style="font-size:0.75rem; color:var(--c-muted); font-weight:700; text-transform:uppercase;">Rating</span>
+                  <div style="font-weight:800; color:var(--c-navy); font-size:1.15rem;">⭐ {{ app.student.rating }} / 5.0</div>
+                </div>
+                <div>
+                  <span style="font-size:0.75rem; color:var(--c-muted); font-weight:700; text-transform:uppercase;">Reliability</span>
+                  <div style="font-weight:800; color:var(--c-teal); font-size:1.15rem;">🛡️ {{ app.student.reliability_rate }}%</div>
+                </div>
+                <div>
+                  <span style="font-size:0.75rem; color:var(--c-muted); font-weight:700; text-transform:uppercase;">Completed Gigs</span>
+                  <div style="font-weight:800; color:var(--c-success); font-size:1.15rem;">✅ {{ app.student.completed_gigs_count }}</div>
+                </div>
+                <div>
+                  <span style="font-size:0.75rem; color:var(--c-muted); font-weight:700; text-transform:uppercase;">Application Status</span>
+                  <div>
+                    <span class="badge-status {% if app.status == 'accepted' %}deadline-completed{% elif app.status == 'rejected' %}deadline-overdue{% else %}deadline-approaching{% endif %}">
+                      {{ app.status.upper() }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Proposal message -->
+              <div style="margin-bottom:1.5rem;">
+                <h4 style="font-size:1.05rem; color:var(--c-navy); margin-bottom:0.4rem;">Student Proposal:</h4>
+                <p style="color:var(--c-dark); line-height:1.6; background:var(--c-white); border:1px solid var(--c-border); padding:1rem; border-radius:12px; margin:0;">
+                  "{{ app.proposal }}"
+                </p>
+              </div>
+
+              <!-- Skills & Portfolio Link -->
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+                <div style="display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center;">
+                  <span style="font-size:0.85rem; font-weight:700; color:var(--c-muted); margin-right:0.4rem;">Skills:</span>
+                  {% for s in app.student.skills %}
+                    <span class="skill-pill">{{ s }}</span>
+                  {% endfor %}
+                </div>
+
+                <a href="{{ url_for('view_profile', user_id=app.student.user_id) }}" target="_blank" style="font-size:0.92rem; font-weight:700; color:var(--c-teal);">
+                  View Full Profile & Past Reviews ↗
+                </a>
+              </div>
+
+              <!-- Client Decision Action Buttons (Prompt 17) -->
+              {% if app.status == 'pending' %}
+                <div style="display:flex; gap:1rem; border-top:1px solid var(--c-border); padding-top:1.25rem;">
+                  <form method="POST" action="{{ url_for('decide_application', app_id=app.id) }}" style="display:inline;">
+                    <input type="hidden" name="decision" value="accept">
+                    <button type="submit" class="btn btn-teal">
+                      ✓ Accept Proposal & Initiate Mock Escrow
+                    </button>
+                  </form>
+
+                  <form method="POST" action="{{ url_for('decide_application', app_id=app.id) }}" style="display:inline;">
+                    <input type="hidden" name="decision" value="reject">
+                    <button type="submit" class="btn btn-outline" style="color:var(--c-danger); border-color:var(--c-danger);">
+                      ✕ Decline
+                    </button>
+                  </form>
+                </div>
+              {% else %}
+                <div style="border-top:1px solid var(--c-border); padding-top:1rem; font-size:0.92rem; color:var(--c-muted);">
+                  Decision made: <strong>{{ app.status.capitalize() }}</strong>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card" style="text-align:center; padding:4rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">👥</div>
+          <h3>No applications received yet</h3>
+          <p>When students submit proposals for your gigs, you can review and accept them here.</p>
+        </div>
+      {% endif %}
+
+    {% else %}
+      <!-- STUDENT VIEW OF MY APPLICATIONS -->
+      {% if applications %}
+        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+          {% for app in applications %}
+            <div class="card" style="padding:1.75rem 2rem;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                <div>
+                  <span class="badge-status {% if app.status == 'accepted' %}deadline-completed{% elif app.status == 'rejected' %}deadline-overdue{% else %}deadline-approaching{% endif %}">
+                    {{ app.status.upper() }}
+                  </span>
+                  <h3 style="font-size:1.35rem; color:var(--c-navy); margin:0.35rem 0;">
+                    <a href="{{ url_for('gig_detail', gig_id=app.gig.id) }}" style="color:inherit;">
+                      {{ app.gig.title }}
+                    </a>
+                  </h3>
+                  <div style="font-size:0.9rem; color:var(--c-muted);">
+                    Client: <strong>{{ app.gig.client.company_name }}</strong> • Submitted {{ app.created_at.strftime('%d %b %Y') }}
+                  </div>
+                </div>
+
+                <div style="text-align:right;">
+                  <span style="font-size:0.8rem; color:var(--c-muted); display:block;">Your Bid</span>
+                  <strong style="font-size:1.5rem; color:var(--c-navy);">₹{{ "{:,}".format(app.bid_amount) }}</strong>
+                  <div style="font-size:0.82rem; color:var(--c-muted);">{{ app.estimated_days }} days estimated</div>
+                </div>
+              </div>
+
+              <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--c-border); font-size:0.95rem; color:var(--c-dark);">
+                <em>"{{ app.proposal }}"</em>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card" style="text-align:center; padding:4rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">📝</div>
+          <h3>You haven't submitted any proposals yet</h3>
+          <p>Explore the marketplace to find starter projects matching your skills.</p>
+          <a href="{{ url_for('gigs') }}" class="btn btn-teal" style="margin-top:1rem;">Browse Gigs</a>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

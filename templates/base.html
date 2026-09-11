@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>{% block title %}FirstGig — Student Freelancing & Career Progression{% endblock %}</title>
+
+  <!-- Google Fonts: DM Serif Display & Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <!-- Dual Custom Cursor (Desktop Only) -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-glow"></div>
+
+  <!-- Sticky Navbar -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <!-- Logo -->
+        <a href="{{ url_for('index') }}" class="brand-logo" id="site-logo">
+          FirstGig<span class="brand-badge-dot"></span>
+        </a>
+
+        <!-- Nav Items -->
+        <ul class="nav-menu">
+          <li>
+            <a href="{{ url_for('index') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+          </li>
+          <li>
+            <a href="{{ url_for('gigs') }}" class="nav-link {% if request.path == '/gigs' %}active{% endif %}">Find Gigs</a>
+          </li>
+          <li>
+            <a href="{{ url_for('how_it_works') }}" class="nav-link {% if request.path == '/how-it-works' %}active{% endif %}">How It Works</a>
+          </li>
+
+          {% if current_user %}
+            <li>
+              {% if current_user.role == 'student' %}
+                <a href="{{ url_for('student_dashboard') }}" class="nav-link {% if '/dashboard' in request.path %}active{% endif %}">Dashboard</a>
+              {% elif current_user.role == 'client' %}
+                <a href="{{ url_for('client_dashboard') }}" class="nav-link {% if '/dashboard' in request.path %}active{% endif %}">Dashboard</a>
+              {% elif current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if '/admin' in request.path %}active{% endif %}">Admin</a>
+              {% endif %}
+            </li>
+            <li>
+              {% if current_user.role == 'student' %}
+                <a href="{{ url_for('student_profile') }}" class="nav-link {% if '/profile' in request.path %}active{% endif %}">Profile</a>
+              {% elif current_user.role == 'client' %}
+                <a href="{{ url_for('client_profile') }}" class="nav-link {% if '/profile' in request.path %}active{% endif %}">Profile</a>
+              {% endif %}
+            </li>
+            <li>
+              <a href="{{ url_for('projects_list') }}" class="nav-link {% if '/projects' in request.path %}active{% endif %}">Projects</a>
+            </li>
+            <li>
+              <a href="{{ url_for('portfolio') }}" class="nav-link {% if '/portfolio' in request.path %}active{% endif %}">Portfolio</a>
+            </li>
+          {% endif %}
+        </ul>
+
+        <!-- Right Action Menu -->
+        <div class="nav-actions">
+          <!-- Quick 1-Click Demo Role Switcher -->
+          <div class="demo-switcher">
+            <button type="button" class="demo-btn-dropdown" id="demoDropdownBtn" title="Switch between pre-configured demo test accounts">
+              ⚡ Demo Switcher ▾
+            </button>
+            <div class="demo-dropdown-menu" id="demoDropdownMenu">
+              <span style="display:block; padding:0.4rem 0.6rem; font-size:0.75rem; font-weight:800; color:var(--c-muted); text-transform:uppercase;">Quick Demo Switch</span>
+              <a href="{{ url_for('switch_demo', role='verified_student') }}" class="demo-dropdown-item">
+                ⭐ <strong>Rahul Sharma</strong><br><small style="color:var(--c-muted);">Level 4: Verified Student (7 gigs)</small>
+              </a>
+              <a href="{{ url_for('switch_demo', role='beginner_student') }}" class="demo-dropdown-item">
+                🟢 <strong>Priya Patel</strong><br><small style="color:var(--c-muted);">Level 0: FirstGig Beginner (0 gigs)</small>
+              </a>
+              <a href="{{ url_for('switch_demo', role='client') }}" class="demo-dropdown-item">
+                🏢 <strong>Vikram Verma</strong><br><small style="color:var(--c-muted);">Client: Apex Digital Studio</small>
+              </a>
+              <a href="{{ url_for('switch_demo', role='admin') }}" class="demo-dropdown-item">
+                🛡️ <strong>Platform Admin</strong><br><small style="color:var(--c-muted);">Full escrow, dispute & verification</small>
+              </a>
+            </div>
+          </div>
+
+          {% if current_user %}
+            <!-- Notifications Icon -->
+            <a href="{{ url_for('notifications') }}" class="nav-notification-badge" title="Notifications">
+              🔔
+              {% if unread_notifs_count and unread_notifs_count > 0 %}
+                <span class="notif-count">{{ unread_notifs_count }}</span>
+              {% endif %}
+            </a>
+
+            <!-- User Info Pill -->
+            <div class="user-menu-pill">
+              <div class="user-avatar-sm">
+                {{ current_user.username[:1].upper() }}
+              </div>
+              <span style="color:var(--c-navy);">{{ current_user.username }}</span>
+            </div>
+
+            <!-- Logout Link -->
+            <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline" style="padding:0.45rem 0.9rem;">Logout</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-sm btn-teal">Register</a>
+          {% endif %}
+
+          <!-- Mobile Hamburger -->
+          <button class="nav-toggle" aria-label="Toggle navigation menu">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash-alert flash-{{ category }}">
+            <span>{{ message }}</span>
+            <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-weight:700;">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Content Body -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3 class="font-heading">FirstGig<span class="brand-badge-dot"></span></h3>
+          <p>
+            The dedicated platform empowering college students to break the cold-start problem.
+            Build verified reputation, work with real clients under mock escrow protection, and unlock higher-tier freelance careers.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('gigs') }}">Find Gigs</a></li>
+            <li><a href="{{ url_for('how_it_works') }}">How It Works</a></li>
+            <li><a href="{{ url_for('portfolio') }}">Student Portfolios</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>For Users</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('register', role='student') }}">Join as Student</a></li>
+            <li><a href="{{ url_for('register', role='client') }}">Hire a Student</a></li>
+            <li><a href="{{ url_for('login') }}">Sign In</a></li>
+            <li><a href="{{ url_for('admin_dashboard') }}">Admin Portal</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Simulated Demo</h4>
+          <p style="font-size:0.9rem; color:rgba(248, 246, 241, 0.7); margin-bottom:0.8rem;">
+            Built with simulated Mock Escrow. No real monetary transactions take place.
+          </p>
+          <div style="display:inline-block; background:rgba(224, 183, 90, 0.15); border:1px solid rgba(224,183,90,0.4); color:var(--c-gold); padding:0.4rem 0.8rem; border-radius:8px; font-size:0.82rem; font-weight:700;">
+            🛡️ Mock Escrow Enabled
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 FirstGig Inc. All rights reserved.</span>
+        <span>Strictly Vertical • Multi-Page Web Application</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts_extra %}{% endblock %}
+</body>
+</html>

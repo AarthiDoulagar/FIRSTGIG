@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard — FirstGig{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:3rem;">
+  <div class="container">
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap; gap:1.25rem;">
+      <div>
+        <h1 style="font-size:2.4rem; color:var(--c-navy); margin-bottom:0.25rem;">
+          {{ profile.company_name }}
+        </h1>
+        <p style="font-size:1.05rem; color:var(--c-muted); margin:0;">
+          Managed by {{ profile.contact_name }} • {{ profile.industry }}
+        </p>
+      </div>
+
+      <div style="display:flex; gap:0.75rem;">
+        <a href="{{ url_for('post_gig') }}" class="btn btn-teal">
+          ➕ Post a New Gig
+        </a>
+        <a href="{{ url_for('client_applications') }}" class="btn btn-outline">
+          👥 Review Applicants
+        </a>
+      </div>
+    </div>
+
+    <!-- 4 Stats Cards -->
+    <div class="grid-4" style="margin-bottom:3rem;">
+      <div class="stat-card">
+        <div class="stat-card-title">Total Gigs Posted</div>
+        <div class="stat-card-val">{{ total_gigs_count }}</div>
+        <small style="color:var(--c-muted);">Marketplace listings</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Pending Applicants</div>
+        <div class="stat-card-val" style="color:var(--c-gold-dark);">{{ pending_applicants_count }}</div>
+        <small style="color:var(--c-teal); font-weight:600;">Candidates awaiting review</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Active Projects</div>
+        <div class="stat-card-val">{{ active_projects|length }}</div>
+        <small style="color:var(--c-muted);">In progress with students</small>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-title">Simulated Escrow Held</div>
+        <div class="stat-card-val" style="color:var(--c-teal);">₹{{ "{:,}".format(simulated_held_escrow) }}</div>
+        <small style="color:#854D0E; font-weight:600;">Protected mock funds</small>
+      </div>
+    </div>
+
+    <!-- Posted Gigs & Applicant Reviews -->
+    <div class="card" style="margin-bottom:3rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.45rem; color:var(--c-navy); margin:0;">Your Posted Gigs</h3>
+        <a href="{{ url_for('post_gig') }}" class="btn btn-sm btn-teal">+ Post Another</a>
+      </div>
+
+      {% if gigs %}
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Gig Title</th>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Difficulty</th>
+                <th>Applicants</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for g in gigs %}
+                <tr>
+                  <td><strong>{{ g.title }}</strong></td>
+                  <td><span class="gig-category-badge">{{ g.category }}</span></td>
+                  <td><strong>₹{{ "{:,}".format(g.budget) }}</strong></td>
+                  <td>{{ g.difficulty }}</td>
+                  <td>
+                    <span style="font-weight:700; color:var(--c-teal);">
+                      {{ g.applications|length }} applicant(s)
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge-status {% if g.status == 'open' %}deadline-plenty{% else %}deadline-completed{% endif %}">
+                      {{ g.status.upper() }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{{ url_for('client_applications', gig_id=g.id) }}" class="btn btn-sm btn-outline">
+                      Review ({{ g.applications|length }})
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="text-align:center; padding:3rem; color:var(--c-muted);">
+          <p>You haven't posted any gigs yet.</p>
+          <a href="{{ url_for('post_gig') }}" class="btn btn-teal">Post Your First Gig Now</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Active Projects Managed by Client -->
+    <div class="card">
+      <h3 style="font-size:1.45rem; color:var(--c-navy); margin-bottom:1.5rem;">Active Student Deliverables</h3>
+
+      {% if active_projects %}
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Assigned Student</th>
+                <th>Escrow Amount</th>
+                <th>Deadline Status</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in active_projects %}
+                <tr>
+                  <td><strong>{{ p.title }}</strong></td>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                      <span>🎓</span>
+                      <div>
+                        <strong>{{ p.student.full_name }}</strong>
+                        <div style="font-size:0.8rem; color:var(--c-muted);">{{ p.student.career_level_info.badge }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><strong>₹{{ "{:,}".format(p.budget) }}</strong> (Mock Escrow)</td>
+                  <td>
+                    <span class="badge-status {{ p.deadline_ui_status.css_class }}">
+                      {{ p.deadline_ui_status.badge }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge-status deadline-completed">{{ p.status }}</span>
+                  </td>
+                  <td>
+                    <a href="{{ url_for('project_detail', project_id=p.id) }}" class="btn btn-sm btn-teal">
+                      Workspace
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p style="color:var(--c-muted); text-align:center; padding:2rem;">No active ongoing projects. Accept candidate proposals above to kick off projects!</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
